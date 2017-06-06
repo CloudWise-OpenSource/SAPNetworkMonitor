@@ -1,0 +1,26 @@
+server:
+  type: simple
+  applicationContextPath: /
+  connector:
+    type: http
+    port: 8080
+
+database:
+  driverClass: com.mysql.jdbc.Driver
+  url: 'jdbc:mysql://10.0.3.42:3306/niping_db?useUnicode=true&characterEncoding=utf8&connectionCollation=utf8_general_ci'
+  user: kevin
+  password: '000000'
+
+# Logging settings.
+logging:
+  level: INFO
+  appenders:
+    - type: console
+    - type: file
+      threshold: INFO
+      logFormat: "%-6level [%d{HH:mm:ss.SSS}] [%t] %logger{5} - %X{code} %msg %n"
+      currentLogFilename: ./logs/application.log
+      archivedLogFilenamePattern: logs/application-%d{yyyy-MM-dd}-%i.log.gz
+      archivedFileCount: 7
+      timeZone: "Asia/Shanghai"
+      maxFileSize: 20MB
