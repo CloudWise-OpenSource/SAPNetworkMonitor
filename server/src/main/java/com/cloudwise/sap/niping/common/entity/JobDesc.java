@@ -1,8 +1,10 @@
-package com.cloudwise.sap.niping.common.vo;
+package com.cloudwise.sap.niping.common.entity;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class JobDesc {
 	private String router;
 	// 时延

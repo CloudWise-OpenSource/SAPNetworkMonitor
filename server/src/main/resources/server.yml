@@ -7,9 +7,16 @@ server:
 
 database:
   driverClass: com.mysql.jdbc.Driver
-  url: 'jdbc:mysql://10.0.3.42:3306/niping_db?useUnicode=true&characterEncoding=utf8&connectionCollation=utf8_general_ci'
-  user: kevin
-  password: '000000'
+  url: 'jdbc:mysql://localhost:3306/niping_db?useUnicode=true&characterEncoding=utf8&connectionCollation=utf8_general_ci'
+  user: root
+  password: 'Bin123456'
+  properties:
+      charSet: UTF-8
+  maxWaitForConnection: 1s
+  validationQuery: "SELECT 1"
+  minSize: 8
+  maxSize: 32
+  checkConnectionWhileIdle: false
 
 # Logging settings.
 logging:
@@ -24,3 +31,8 @@ logging:
       archivedFileCount: 7
       timeZone: "Asia/Shanghai"
       maxFileSize: 20MB
+
+sap:
+  monitor:
+    #unit: second
+    lostTime: 2

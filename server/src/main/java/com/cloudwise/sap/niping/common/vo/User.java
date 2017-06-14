@@ -1,13 +1,17 @@
 package com.cloudwise.sap.niping.common.vo;
 
-import java.security.Principal;
-
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 @AllArgsConstructor
-public class User implements Principal {
-	private String accountId;
-	private String name;
+public class User {
+	protected String userId;
+	protected String accountId;
+	protected String name;
+	protected String loginName;
+	private String password;
+	private String passwordSalt;
 }

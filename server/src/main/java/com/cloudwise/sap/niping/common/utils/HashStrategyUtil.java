@@ -5,6 +5,8 @@ import java.security.MessageDigest;
 
 public class HashStrategyUtil {
 
+	private HashStrategyUtil(){};
+
 	private static final char[] HEX_CHARS = "0123456789ABCDEF".toCharArray();
 
 	public static String computeHash(String password, String salt) throws Exception {

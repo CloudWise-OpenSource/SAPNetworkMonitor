@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class MonitorNipingResult extends AbstractEntity {
+public class MonitorNiPingResult extends AbstractEntity {
 	private static final long serialVersionUID = -4165099767077210852L;
 	public static final int TYPE_PERFORMANCE = 0;
 	public static final int TYPE_STABILITY = 1;

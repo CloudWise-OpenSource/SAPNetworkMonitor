@@ -29,6 +29,7 @@ buildNumber.properties
 *.zip
 *.tar.gz
 *.rar
+*.swp
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
@@ -37,3 +38,5 @@ hs_err_pid*
 .settings/
 logs/
 target/
+.idea/
+.DS_Store
