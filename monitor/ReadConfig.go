@@ -27,6 +27,7 @@ var (
 	monitorJob MonitorJob
 	lastSendTime int64
 	lastHeartBeat int64
+	lastNipingT int64
 )
 
 type HeartBeats struct {
@@ -38,30 +39,31 @@ type HeartBeats struct {
 	City		string		`json:"city"`
 	Isp		string		`json:"isp"`
 	MonitorId	string		`json:"monitorId"`
+	NipingT		string		`json:"nipingT"`
 	RunningTaskIds	[]string	`json:"runningTaskIds"`
 }
 
 type MonitorJob struct {
 	Code          	int64 		`json:"code"`
+	Message		string		`json:"msg"`
 	Data       	struct {
-		ActionType	int		`json:"actionType"`
+		MonitorId	string		`json:"monitorId"`
+		TaskId		string		`json:"taskId"`
 		Interval	int		`json:"interval"`
+		ActionType	int		`json:"actionType"`
 		JobDesc		struct {
-			BandwithB	int		`json:"bandwithB"`
-			BandwithL	int		`json:"bandwithL"`
-			IdleTimeoutD	int		`json:"idleTimeoutD"`
+			Router		string		`json:"router"`
 			RoundTripTimeB	int		`json:"roundTripTimeB"`
 			RoundTripTimeL	int		`json:"roundTripTimeL"`
-			Router		string		`json:"router"`
+			BandwithB	int		`json:"bandwithB"`
+			BandwithL	int		`json:"bandwithL"`
 			StabilityB	int		`json:"stabilityB"`
 			StabilityD	int		`json:"stabilityD"`
 			StabilityL	int		`json:"stabilityL"`
-		}
+			IdleTimeoutD	int		`json:"idleTimeoutD"`
+		}	`json:"jobDesc"`
 		ModifiedTime	int64		`json:"modifiedTime"`
-		MonitorId	string		`json:"monitorId"`
-		TaskId		string		`json:"taskId"`
-
-	}
+	}	`json:"data"`
 }
 
 type MonitorResult struct {
@@ -106,12 +108,18 @@ func getTaskIds() []string {
 	return taskIds
 }
 
-func GetNipingT(nipingAddr string) string {
-	cmd,err := exec.Command("cmd","/C",nipingAddr +"niping","-t").Output()
-	if err != nil {
-		fmt.Println(err.Error())
+func GetNipingT(nipingaddr string,nipingTRate int64) string {
+	if time.Now().Unix() - lastNipingT > nipingTRate {
+		cmd,err := exec.Command("cmd","/C",nipingaddr +"niping","-t").Output()
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		nipingT := string(cmd)
+		return nipingT
+	}else {
+		nipingT := ""
+		return nipingT
 	}
-	return string(cmd)
 }
 
 func readConfig() {
@@ -141,25 +149,26 @@ func readConfig() {
 			}
 		}
 	}
-	heartbeat["nipingT"] = GetNipingT(monitorConfig["nipingAddr"])
 }
 
 func TaskProducer1(jobQueue chan<- http.Response,url string,monitorJob MonitorJob,channel chan int) {
+	taskMap[monitorJob.Data.TaskId] = list.New()
 	for true {
 		if _,ok := taskMap[monitorJob.Data.TaskId];ok {
 			timeSpace := time.Now().Unix() - lastSendTime
 			if timeSpace > int64(monitorJob.Data.Interval) {
 				channel_result := make(chan MonitorResult,1)
-				go NipingCMD(0,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,heartbeat["nipingAddr"],
+				go NipingCMD(0,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,heartbeat["nipingaddr"],
 					monitorJob.Data.JobDesc.BandwithB,monitorJob.Data.JobDesc.BandwithL,0,0,channel_result)
 				list_a,pid_a := findNipingPid(monitorJob.Data.TaskId)
 				monitorResult_a  := <- channel_result
-				deleteNipingPid(list_a,pid_a)
 
-				go NipingCMD(0,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,heartbeat["nipingAddr"],
+				deleteNipingPid(list_a,pid_a)
+				go NipingCMD(0,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,heartbeat["nipingaddr"],
 					monitorJob.Data.JobDesc.RoundTripTimeB, monitorJob.Data.JobDesc.RoundTripTimeL,0,1,channel_result)
 				list_b,pid_b := findNipingPid(monitorJob.Data.TaskId)
 				monitorResult_b := <- channel_result
+
 				deleteNipingPid(list_b,pid_b)
 				close(channel_result)
 				monitorResult = MonitorResult{monitorResult_a.Av2,monitorResult_a.Avg,monitorResult_a.EndTime,monitorResult_a.Errmsg,
@@ -201,7 +210,7 @@ func TaskProducer2(jobQueue chan<- http.Response,url string,monitorJob MonitorJo
 	for true {
 		if _,ok := taskMap[monitorJob.Data.TaskId];ok {
 			channel_result := make(chan MonitorResult,1)
-			go NipingCMD(1,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,heartbeat["nipingAddr"],monitorJob.Data.JobDesc.StabilityB,monitorJob.Data.JobDesc.StabilityL,monitorJob.Data.JobDesc.StabilityD,2,channel_result)
+			go NipingCMD(1,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,heartbeat["nipingaddr"],monitorJob.Data.JobDesc.StabilityB,monitorJob.Data.JobDesc.StabilityL,monitorJob.Data.JobDesc.StabilityD,2,channel_result)
 			list,pid := findNipingPid(monitorJob.Data.TaskId)
 			monitorResult_stab := <- channel_result
 			deleteNipingPid(list,pid)
@@ -222,7 +231,6 @@ func TaskProducer2(jobQueue chan<- http.Response,url string,monitorJob MonitorJo
 			}else {
 				jobQueue <- *resp
 			}
-
 		}
 	}
 }
@@ -236,41 +244,45 @@ func TaskConsumer2(jobQueue <-chan http.Response){
 }
 
 func startJob(monitorJob MonitorJob) {
-	url := "/api/databus/monitor/" + heartbeat["monitorId"] + "/result"
+	url := "http://10.0.5.229:8080/api/databus/monitor/" + heartbeat["monitorId"] + "/result"
 	channel1 := make(chan int,1)
 	channel2 := make(chan int,1)
 	go func() {
-		jobQueue1 := make(chan http.Response, 10)
+		jobQueue1 := make(chan http.Response, 1)
 		go TaskProducer1(jobQueue1,url,monitorJob,channel1)
 		go TaskConsumer1(jobQueue1)
 
 	}()
+	<- channel1
+	close(channel1)
 	go func() {
-		jobQueue2 := make(chan http.Response, 10)
+		jobQueue2 := make(chan http.Response, 1)
 		go TaskProducer2(jobQueue2,url,monitorJob,channel2)
 		go TaskConsumer2(jobQueue2)
 
 	}()
-	<- channel1
+
 	<- channel2
-	close(channel1)
+
 	close(channel2)
 }
 
 func SendHeartBeat() {
 	readConfig()
-	url := "/api/monitors/monitor/" + heartbeat["monitorId"] + "/heartbeat"
+	url := "http://10.0.5.229:8080/api/monitors/monitor/" + heartbeat["monitorId"] + "/heartbeat"
 	heartbeatRate,_ := strconv.ParseInt(monitorConfig["heartbeatrate"],10,64)
+	nipingTRate,_ := strconv.ParseInt(monitorConfig["nipingtate"],10,64)
 	runtime.GOMAXPROCS(20)
-	queue := make(chan http.Response, 10)
-	go Producer(queue,url,heartbeatRate)
+	queue := make(chan http.Response, 1)
+	go Producer(queue,url,heartbeatRate,nipingTRate)
 	go Consumer(queue)
 	time.Sleep(time.Hour * 1000000)
 }
 
-func Producer(queue chan<- http.Response,url string,heartbeatRate int64){
+func Producer(queue chan<- http.Response,url string,heartbeatRate int64,nipingTRate int64){
 	for true {
 		if time.Now().Unix() - lastHeartBeat > heartbeatRate {
+			nipingT := GetNipingT(monitorConfig["nipingaddr"],nipingTRate)
 			heartbeats := HeartBeats{
 				Ip:		heartbeat["ip"],
 				Name:		heartbeat["name"],
@@ -280,6 +292,7 @@ func Producer(queue chan<- http.Response,url string,heartbeatRate int64){
 				City:		heartbeat["city"],
 				Isp:		heartbeat["isp"],
 				MonitorId:	heartbeat["monitorId"],
+				NipingT:	nipingT,
 				RunningTaskIds:	getTaskIds(),
 			}
 			jsons, _ := json.Marshal(heartbeats)
@@ -290,8 +303,10 @@ func Producer(queue chan<- http.Response,url string,heartbeatRate int64){
 			}
 			req.Header.Set("Authorization","Bearer Zb3cVv0qzeNhYZwYbdC")
 			req.Header.Set("Content-Type","application/json")
+			fmt.Println(req)
 			client := &http.Client{}
 			resp,err1 :=client.Do(req)
+			fmt.Println(resp)
 			if err1 != nil {
 				log.Println("cannot get the response")
 			}else {
@@ -299,7 +314,6 @@ func Producer(queue chan<- http.Response,url string,heartbeatRate int64){
 			}
 			lastHeartBeat = time.Now().Unix()
 		}
-
 	}
 }
 
@@ -307,18 +321,26 @@ func Consumer(queue <-chan http.Response){
 	for true {
 		resp := <- queue
 		if resp.StatusCode == 200 {
-			body, _ := ioutil.ReadAll(resp.Body)
-			json.Unmarshal(body, &monitorJob)
+			log.Println("received response")
+			buf := new(bytes.Buffer)
+			buf.ReadFrom(resp.Body)
+			s := buf.String()
+			json.Unmarshal([]byte(s), &monitorJob)
+			fmt.Println(monitorJob.Data.TaskId)
+
 			if monitorJob.Data.MonitorId == heartbeat["monitorId"] {
 				switch monitorJob.Data.ActionType {
 				case 0:
+					log.Print("start task0")
 					deleteMap(monitorJob.Data.TaskId, taskMap)
 					log.Println("stop task:" +  monitorJob.Data.TaskId)
 					break
 				case 1:
+					log.Print("start task1")
 					startJob(monitorJob)
 					break
 				case 2:
+					log.Print("start task2")
 					deleteMap(monitorJob.Data.TaskId, taskMap)
 					log.Println("stop task:" +  monitorJob.Data.TaskId)
 					startJob(monitorJob)
@@ -357,6 +379,7 @@ func findNipingPid(taskId string) (*list.List,*list.Element){
 		if nipingFlag == true {
 			pid := strings.Fields(array[i])[1]
 			l.PushBack(pid)
+			fmt.Println(l)
 		}
 	}
 	pid := l.Back()
@@ -376,9 +399,9 @@ func deleteMap(taskId string, taskMap map[string] *list.List){
 	delete(taskMap,taskId)
 }
 
-func NipingCMD(typeId int,taskId string, router string, nipingAddr string, b_args int, l_args int, d_args int,executeid int, channel chan MonitorResult) {
+func NipingCMD(typeId int,taskId string, router string, nipingaddr string, b_args int, l_args int, d_args int,executeid int, channel chan MonitorResult) {
 	startTime := time.Now().Unix()
-	cmd := exec.Command("cmd", "/C", nipingAddr +"niping","-c","-H",router,"-B",strconv.Itoa(b_args),
+	cmd := exec.Command("cmd", "/C", nipingaddr +"niping","-c","-H",router,"-B",strconv.Itoa(b_args),
 		"-L", strconv.Itoa(l_args), "-D", strconv.Itoa(d_args))
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
