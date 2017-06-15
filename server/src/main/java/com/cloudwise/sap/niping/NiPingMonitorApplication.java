@@ -43,7 +43,6 @@ public class NiPingMonitorApplication extends Application<ServerConfiguration> {
 
         final BasicCredentialAuthFilter basicAuthFilter = new BasicCredentialAuthFilter.Builder<BasicAuthUser>()
                 .setAuthenticator(sapBasicAuthenticator)
-//                .setRealm("SAP")
                 .buildAuthFilter();
         final AuthFilter oAuthFilter = new OAuthCredentialAuthFilter.Builder<OAuthUser>()
                 .setAuthenticator(sapOAuthenticator)

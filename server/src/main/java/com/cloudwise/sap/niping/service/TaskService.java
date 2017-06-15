@@ -5,6 +5,7 @@ import com.cloudwise.sap.niping.common.utils.KeyGeneration;
 import com.cloudwise.sap.niping.dao.MonitorNiPingResultDao;
 import com.cloudwise.sap.niping.dao.MonitorTaskDao;
 import com.cloudwise.sap.niping.dao.TaskDao;
+import com.cloudwise.sap.niping.exception.NiPingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.apache.commons.collections4.functors.TruePredicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jvnet.hk2.annotations.Service;
+import org.skife.jdbi.v2.exceptions.DBIException;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -51,7 +53,7 @@ public class TaskService {
         return null;
     }
 
-    public Optional<MonitorJob> getNextJob(String monitorId, List<String> runningTaskIds) {
+    public Optional<MonitorJob> getNextJob(String monitorId, List<String> runningTaskIds) throws NiPingException {
         log.info("monitor {} get next job", monitorId);
 
         //start job
@@ -59,7 +61,12 @@ public class TaskService {
             runningTaskIds = Lists.newArrayList(new String(""));
         }
         Task task = null;
-        task = taskDao.getNextStartTask(monitorId, runningTaskIds, Task.Status.enable.getStatus());
+        try {
+            task = taskDao.getNextStartTask(monitorId, runningTaskIds, Task.Status.enable.getStatus());
+        } catch (DBIException e) {
+            log.error("get monitor {} next start job error {}", monitorId, ExceptionUtils.getMessage(e));
+            throw new NiPingException(NiPingException.Exception.ServerError);
+        }
 
         if (null != task) {
             task.setAction(MonitorJob.Action.START);
@@ -67,8 +74,12 @@ public class TaskService {
 
         //restart job
         if (null == task) {
-            task = taskDao.getNextRestartTask(monitorId, MonitorTask.Redispatcher.NeedRedispatcher.getRedispatcher(), Task.Status.enable
-                    .getStatus());
+            try {
+                task = taskDao.getNextRestartTask(monitorId, MonitorTask.Redispatcher.NeedRedispatcher.getRedispatcher(), Task.Status.enable.getStatus());
+            } catch (DBIException e) {
+                log.error("get monitor {} next restart job error {}", monitorId, ExceptionUtils.getMessage(e));
+                throw new NiPingException(NiPingException.Exception.ServerError);
+            }
             if (null != task) {
                 task.setAction(MonitorJob.Action.RESTART);
                 redispatcheredTask(task.getTaskId(), monitorId);
@@ -78,7 +89,12 @@ public class TaskService {
         if (null == task) {
             if (CollectionUtils.isNotEmpty(runningTaskIds)) {
                 List<String> taskIds = null;
-                taskIds = taskDao.getAllTaskIdsInRunningTaskIds(monitorId, runningTaskIds, Task.Status.enable.getStatus());
+                try {
+                    taskIds = taskDao.getAllTaskIdsInRunningTaskIds(monitorId, runningTaskIds, Task.Status.enable.getStatus());
+                } catch (DBIException e) {
+                    log.error("get monitor {} next stop job: get all taskIds in runningTaskIds error: {}", monitorId, ExceptionUtils.getMessage(e));
+                    throw new NiPingException(NiPingException.Exception.ServerError);
+                }
                 String stopId = subtract(runningTaskIds, taskIds);
                 if (StringUtils.isNotEmpty(stopId)) {
                     task = Task.builder().taskId(stopId).build();
@@ -98,8 +114,8 @@ public class TaskService {
             }
             return job;
         } catch (IOException e) {
-            log.error("get monitor NextJob convert job error: {}", ExceptionUtils.getMessage(e));
-            return Optional.empty();
+            log.error("get monitor next job: convert task {} error: {}", task, ExceptionUtils.getMessage(e));
+            throw new NiPingException(NiPingException.Exception.ServerError);
         }
     }
 
@@ -126,58 +142,99 @@ public class TaskService {
                 .build());
     }
 
-    public void saveTask(Task task) {
+    public void saveTask(Task task) throws NiPingException {
         Date currentDate = new Date();
+        try {
+            if (StringUtils.isBlank(task.getTaskId())) {
 
-        if (StringUtils.isBlank(task.getTaskId())) {
+                task.setTaskId(KeyGeneration.getKey());
+                task.setCreationTime(currentDate);
+                task.setModifiedTime(currentDate);
+                task.setStatus(Task.Status.enable.getStatus());
+                taskDao.insertTask(task);
+                log.info("task {} saved", task);
+            } else {
+                task.setModifiedTime(currentDate);
+                taskDao.updateTask(task);
 
-            task.setTaskId(KeyGeneration.getKey());
-            task.setCreationTime(currentDate);
-            task.setModifiedTime(currentDate);
-            task.setStatus(Task.Status.enable.getStatus());
-            taskDao.insertTask(task);
-            log.info("task {} saved", task);
-        } else {
-            task.setModifiedTime(currentDate);
-            taskDao.updateTask(task);
-
-            //task update needredispatch
-            monitorTaskDao.updateMonitorTaskRedispatcher(task.getTaskId(), MonitorTask.Redispatcher.NeedRedispatcher.getRedispatcher());
-            log.info("task {} modified", task);
+                //task update needredispatch
+                monitorTaskDao.updateMonitorTaskRedispatcher(task.getTaskId(), MonitorTask.Redispatcher.NeedRedispatcher.getRedispatcher());
+                log.info("task {} modified", task);
+            }
+        }
+        catch (DBIException e) {
+            log.error("save task {} error: {}", task, ExceptionUtils.getMessage(e));
+            throw new NiPingException(NiPingException.Exception.DBError);
         }
     }
 
-    public void enableTask(String taskId) {
-        taskDao.updateTaskStatus(taskId, Task.Status.enable.getStatus(), new Date(System.currentTimeMillis()));
-        log.info("task {} enabled", taskId);
+    public void enableTask(String taskId) throws NiPingException {
+        try {
+            taskDao.updateTaskStatus(taskId, Task.Status.enable.getStatus(), new Date(System.currentTimeMillis()));
+            log.info("task {} enabled", taskId);
+        }
+        catch (DBIException e) {
+            log.error("enable task {} error: {}", taskId, ExceptionUtils.getMessage(e));
+            throw new NiPingException(NiPingException.Exception.DBError);
+        }
     }
 
-    public void disableTask(String taskId) {
-        taskDao.updateTaskStatus(taskId, Task.Status.disable.getStatus(), new Date(System.currentTimeMillis()));
-        monitorTaskDao.removeMonitorTask(taskId);
-        log.info("task {} disabled", taskId);
+    public void disableTask(String taskId) throws NiPingException {
+        try {
+            taskDao.updateTaskStatus(taskId, Task.Status.disable.getStatus(), new Date(System.currentTimeMillis()));
+            monitorTaskDao.removeMonitorTask(taskId);
+            log.info("task {} disabled", taskId);
+        }
+        catch (DBIException e) {
+            log.error("disable task {} error: {}", taskId, ExceptionUtils.getMessage(e));
+            throw new NiPingException(NiPingException.Exception.DBError);
+        }
     }
 
-    public void deleteTask(String taskId) {
-        taskDao.updateTaskStatus(taskId, Task.Status.deleted.getStatus(), new Date(System.currentTimeMillis()));
-        monitorTaskDao.removeMonitorTask(taskId);
-        log.info("task {} deleted", taskId);
+    public void deleteTask(String taskId) throws NiPingException {
+        try {
+            taskDao.updateTaskStatus(taskId, Task.Status.deleted.getStatus(), new Date(System.currentTimeMillis()));
+            monitorTaskDao.removeMonitorTask(taskId);
+            log.info("task {} deleted", taskId);
+        }
+        catch (DBIException e) {
+            log.error("delete task {} error: {}", taskId, ExceptionUtils.getMessage(e));
+            throw new NiPingException(NiPingException.Exception.DBError);
+        }
     }
 
-    public void assignTask(List<String> monitorIds, String taskId) {
-        monitorTaskDao.insertMonitorTask(monitorIds, taskId);
+    public void assignTask(List<String> monitorIds, String taskId) throws NiPingException {
+        try {
+            monitorTaskDao.insertMonitorTask(monitorIds, taskId);
+        }
+        catch (DBIException e) {
+            log.error("assign task {} to monitor {} error: {}", taskId,  Arrays.toString(monitorIds.toArray(new String[]{})), ExceptionUtils.getMessage(e));
+            throw new NiPingException(NiPingException.Exception.DBError);
+        }
         log.info("task {} has been assigned to monitors {}", taskId, Arrays.toString(monitorIds.toArray(new String[]{})));
     }
 
-    public void redispatcheredTask(String taskId, String monitorId) {
-        monitorTaskDao.updateMonitorTaskRedispatcher(taskId, monitorId, MonitorTask.Redispatcher.NoNeedRedispatcher.getRedispatcher());
+    public void redispatcheredTask(String taskId, String monitorId) throws NiPingException {
+        try {
+            monitorTaskDao.updateMonitorTaskRedispatcher(taskId, monitorId, MonitorTask.Redispatcher.NoNeedRedispatcher.getRedispatcher());
+        }
+        catch (DBIException e) {
+            log.error("set redispatch status: task {} monitor {} error: {}", taskId, monitorId, ExceptionUtils.getMessage(e));
+            throw new NiPingException(NiPingException.Exception.DBError);
+        }
     }
 
-    public void saveMonitorNiPingResult(MonitorNiPingResult monitorNiPingResult) {
+    public void saveMonitorNiPingResult(MonitorNiPingResult monitorNiPingResult) throws NiPingException {
         Date currentDate = new Date();
         monitorNiPingResult.setCreationTime(currentDate);
         monitorNiPingResult.setModifiedTime(currentDate);
-        monitorNiPingResultDao.saveMonitorNiPingResult(monitorNiPingResult);
+        try {
+            monitorNiPingResultDao.saveMonitorNiPingResult(monitorNiPingResult);
+        }
+        catch (DBIException e) {
+            log.error("save monitor niping result {} error: {}", monitorNiPingResult, ExceptionUtils.getMessage(e));
+            throw new NiPingException(NiPingException.Exception.DBError);
+        }
         log.info("monitor NiPing result {} saved", monitorNiPingResult);
     }
 }

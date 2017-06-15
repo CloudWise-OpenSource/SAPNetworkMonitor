@@ -1,0 +1,219 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                 http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <property name="now" value="sysdate" dbms="oracle" />
+    <property name="now" value="now()" dbms="mysql" />
+    <property name="now" value="now()" dbms="postgresql" />
+    <changeSet id="1" author="kevin">
+        <createTable tableName="snm_access_credentials">
+            <column name="token" type="VARCHAR(25)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="account_id" type="VARCHAR(25)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="comment" type="VARCHAR(500)"/>
+            <column name="expiry_date" type="datetime(6)"/>
+            <column name="creation_time" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_time" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="snm_monitor">
+            <column name="monitor_id" type="VARCHAR(25)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="account_id" type="VARCHAR(25)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="country" type="VARCHAR(50)"/>
+            <column name="province" type="VARCHAR(50)"/>
+            <column name="city" type="VARCHAR(50)"/>
+            <column name="isp" type="VARCHAR(50)"/>
+            <column name="area" type="VARCHAR(50)"/>
+            <column name="ip" type="VARCHAR(50)"/>
+            <column name="niping_t" type="BLOB"/>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creation_time" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_time" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="snm_monitor_task">
+            <column name="task_id" type="VARCHAR(25)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="monitor_id" type="VARCHAR(25)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="redispatcher" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="snm_niping_result">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="account_id" type="VARCHAR(25)"/>
+            <column name="monitor_id" type="VARCHAR(25)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="task_id" type="VARCHAR(25)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="collected_time" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_time" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_time" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="errno" type="INT"/>
+            <column name="avg" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="min" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tr" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="av2" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tr2" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="errmsg" type="BLOB"/>
+            <column name="creation_time" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_time" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="snm_task">
+            <column name="task_id" type="VARCHAR(25)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="account_id" type="VARCHAR(25)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="task_interval" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="config_json" type="BLOB">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creation_time" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_time" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable tableName="snm_user">
+            <column autoIncrement="true" name="user_id" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="account_id" type="VARCHAR(25)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(25)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="login_name" type="VARCHAR(25)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password_salt" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creation_time" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modified_time" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey columnNames="token" constraintName="PRIMARY" tableName="snm_access_credentials"/>
+        <addPrimaryKey columnNames="monitor_id" constraintName="PRIMARY" tableName="snm_monitor"/>
+        <addPrimaryKey columnNames="task_id" constraintName="PRIMARY" tableName="snm_task"/>
+        <createIndex indexName="fk_monitor_task_monitor_id" tableName="snm_monitor_task">
+            <column name="monitor_id"/>
+        </createIndex>
+        <createIndex indexName="fk_monitor_task_task_id" tableName="snm_monitor_task">
+            <column name="task_id"/>
+        </createIndex>
+        <createIndex indexName="idx_al" tableName="snm_user">
+            <column name="account_id"/>
+            <column name="login_name"/>
+        </createIndex>
+        <createIndex indexName="idx_am" tableName="snm_monitor">
+            <column name="account_id"/>
+            <column name="monitor_id"/>
+        </createIndex>
+        <createIndex indexName="idx_at" tableName="snm_task">
+            <column name="account_id"/>
+            <column name="task_id"/>
+        </createIndex>
+        <createIndex indexName="idx_atsm" tableName="snm_niping_result">
+            <column name="account_id"/>
+            <column name="task_id"/>
+            <column name="collected_time"/>
+            <column name="monitor_id"/>
+        </createIndex>
+        <addForeignKeyConstraint baseColumnNames="monitor_id" baseTableName="snm_monitor_task" constraintName="fk_monitor_task_monitor_id" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="monitor_id" referencedTableName="snm_monitor"/>
+        <addForeignKeyConstraint baseColumnNames="task_id" baseTableName="snm_monitor_task" constraintName="fk_monitor_task_task_id" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="task_id" referencedTableName="snm_task"/>
+        <insert tableName="snm_user">
+            <column name="account_id" value="a1" />
+            <column name="name" value="Admin" />
+            <column name="login_name" value="admin" />
+            <!-- password is sap118 -->
+            <column name="password"
+                    value="DE42D48DCFADF42C46B0573E311ACB20D4ED0ADE91F8D8714E3B9B834389210CF36D290517E8B5517FEE1721B9EC09E5F28A4AD22860B6EC446AE61F3C5EC8E8" />
+            <column name="password_salt" value="sap998" />
+            <column name="status" value="0" />
+            <column name="creation_time" valueDate="${now}"></column>
+            <column name="modified_time" valueDate="${now}"></column>
+        </insert>
+        <insert tableName="snm_access_credentials">
+            <column name="account_id" value="a1" />
+            <column name="token" value="Zb3cVv0qzeNhYZwYbdC" />
+            <column name="comment" value="Monitor access credentials for a1 account." />
+            <column name="expiry_date" valueDate="2117-01-01 00:00:01" />
+            <column name="creation_time" valueDate="${now}"></column>
+            <column name="modified_time" valueDate="${now}"></column>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

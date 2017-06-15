@@ -3,6 +3,7 @@ package com.cloudwise.sap.niping.service;
 import com.cloudwise.sap.niping.SapConfiguration;
 import com.cloudwise.sap.niping.common.entity.Monitor;
 import com.cloudwise.sap.niping.dao.MonitorDao;
+import com.cloudwise.sap.niping.exception.NiPingException;
 import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -37,7 +38,11 @@ public class MonitorService {
     @PostConstruct
     public void monitorsHeartbeat() {
         log.info("start monitor heartbeat thread ..");
-        inactiveAllMonitors();
+        try {
+            inactiveAllMonitors();
+        } catch (NiPingException e) {
+            log.error("monitors Heartbeat: inactive all monitors error: {}", ExceptionUtils.getMessage(e));
+        }
         log.info("inactive all monitors.");
 
         int heartbeatLostTime = sapConfig.getMonitorConfiguration().getLostTime();
@@ -54,20 +59,18 @@ public class MonitorService {
             if (CollectionUtils.isNotEmpty(activeMonitors)) {
                 try {
                     this.modifyMonitorsStatus(activeMonitors, Monitor.Status.active);
-                    log.info("monitors {} setted to active", Arrays.toString(activeMonitors.toArray(new String[]{})));
+                } catch (NiPingException e) {
+                    log.error("monitors Heartbeat thread: active monitors {} error: {}", activeMonitors, ExceptionUtils.getMessage(e));
                 }
-                catch (DBIException e) {
-                    log.error("monitors Heartbeat thread : active monitors fail:", ExceptionUtils.getMessage(e));
-                }
+                log.info("monitors {} setted to active", Arrays.toString(activeMonitors.toArray(new String[]{})));
             }
             if (CollectionUtils.isNotEmpty(inactiveMonitors)) {
                 try {
                     this.modifyMonitorsStatus(inactiveMonitors, Monitor.Status.inactive);
-                    log.info("monitors {} setted to inactive", Arrays.toString(inactiveMonitors.toArray(new String[]{})));
+                } catch (NiPingException e) {
+                    log.error("monitors Heartbeat thread: inactive monitors {} error: {}", inactiveMonitors, ExceptionUtils.getMessage(e));
                 }
-                catch (DBIException e) {
-                    log.error("monitors Heartbeat thread : inactive monitors fail:", ExceptionUtils.getMessage(e));
-                }
+                log.info("monitors {} setted to inactive", Arrays.toString(inactiveMonitors.toArray(new String[]{})));
             }
 
             synchronized (monitorsLock) {
@@ -86,33 +89,49 @@ public class MonitorService {
         }
     }
 
-    public void saveMonitor(Monitor monitor) {
+    public void saveMonitor(Monitor monitor)  throws NiPingException {
         String monitorId = monitor.getMonitorId();
 
         Date currentDate = new Date();
         String nipingT = monitor.getNipingT();
         monitor.setModifiedTime(currentDate);
 
-        if (monitorDao.countMonitor(monitorId) == 0) {
-            monitor.setCreationTime(currentDate);
-            monitor.setStatus(Monitor.Status.active.getStatus());
-            monitorDao.insertMonitor(monitor);
-            log.info("monitor {} saved", monitor);
+        try {
+            if (monitorDao.countMonitor(monitorId) == 0) {
+                monitor.setCreationTime(currentDate);
+                monitor.setStatus(Monitor.Status.active.getStatus());
+                monitorDao.insertMonitor(monitor);
+                log.info("monitor {} saved", monitor);
 
-        } else if (StringUtils.isNoneBlank(nipingT)) {
-            monitorDao.updateMonitorNiping(monitor);
-            log.info("monitor {} modified", monitor);
+            } else if (StringUtils.isNoneBlank(nipingT)) {
+                monitorDao.updateMonitorNiping(monitor);
+                log.info("monitor {} modified", monitor);
+            }
+        }
+        catch (DBIException e) {
+            log.error("monitors: save monitor {} error: {}", monitor, ExceptionUtils.getMessage(e));
+            throw new NiPingException(NiPingException.Exception.DBError);
         }
     }
 
-    public void inactiveAllMonitors() {
-        monitorDao.updateAllMonitorsStatus(Monitor.Status.inactive.getStatus(), new Date(System.currentTimeMillis()));
-        log.info("all monitors setted to inactive");
+    public void inactiveAllMonitors() throws NiPingException {
+        try {
+            monitorDao.updateAllMonitorsStatus(Monitor.Status.inactive.getStatus(), new Date(System.currentTimeMillis()));
+            log.info("all monitors setted to inactive");
+        }
+        catch (DBIException e) {
+            log.error("inactive all monitors error: {}", ExceptionUtils.getMessage(e));
+        }
     }
 
-    public void modifyMonitorsStatus(List<String> monitorIds, Monitor.Status status) {
+    public void modifyMonitorsStatus(List<String> monitorIds, Monitor.Status status) throws NiPingException {
         if (CollectionUtils.isNotEmpty(monitorIds)) {
-            monitorDao.updateMonitorsStatus(monitorIds, status.getStatus(), new Date(System.currentTimeMillis()));
+            try {
+                monitorDao.updateMonitorsStatus(monitorIds, status.getStatus(), new Date(System.currentTimeMillis()));
+            }
+            catch (DBIException e) {
+                log.error("modify monitors {} status {} error: {}", Arrays.toString(monitorIds.toArray(new String[]{})), status, ExceptionUtils.getMessage(e));
+            }
         }
     }
 }

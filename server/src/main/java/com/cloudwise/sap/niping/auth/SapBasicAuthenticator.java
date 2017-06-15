@@ -16,7 +16,7 @@ public class SapBasicAuthenticator implements Authenticator<BasicCredentials, Ba
     AuthService authService;
 
     public Optional<BasicAuthUser> authenticate(BasicCredentials credentials) throws AuthenticationException {
-        Optional<User> optionalUser = authService.getUser(credentials.getUsername(), credentials.getPassword());
+        Optional<User> optionalUser = authService.validateUser(credentials.getUsername(), credentials.getPassword());
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             return Optional.of(BasicAuthUser.builder()

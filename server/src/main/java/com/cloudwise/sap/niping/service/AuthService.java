@@ -1,13 +1,16 @@
 package com.cloudwise.sap.niping.service;
 
 import com.cloudwise.sap.niping.common.entity.AccessCredentials;
+import com.cloudwise.sap.niping.common.entity.UserEntity;
 import com.cloudwise.sap.niping.common.utils.HashStrategyUtil;
 import com.cloudwise.sap.niping.common.vo.User;
 import com.cloudwise.sap.niping.dao.AccessCredentialsDao;
 import com.cloudwise.sap.niping.dao.UserDao;
+import com.cloudwise.sap.niping.exception.NiPingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jvnet.hk2.annotations.Service;
+import org.skife.jdbi.v2.exceptions.DBIException;
 
 import javax.inject.Inject;
 import java.util.Optional;
@@ -23,18 +26,27 @@ public class AuthService {
     private UserDao userDao;
 
     public Optional<AccessCredentials> getCredentialsByToken(String credentials) {
-        return Optional.ofNullable(accessCredentialsDao.getCredentialsByToken(credentials));
+        AccessCredentials accessCredentials = null;
+        try {
+            accessCredentials = accessCredentialsDao.getCredentialsByToken(credentials);
+        } catch (DBIException e) {
+            log.error("user auth: get credentials by token {} database error: {}", credentials, ExceptionUtils.getMessage(e));
+        }
+        return Optional.ofNullable(accessCredentials);
     }
 
-    public Optional<User> getUser(String loginName, String password) {
-        User user = userDao.getUser(loginName);
+    public Optional<User> validateUser(String loginName, String password) {
+        User user = null;
         try {
+            user = userDao.getUser(loginName, UserEntity.Status.enable.getStatus());
             if (null == user || !user.getPassword().equals(HashStrategyUtil.computeHash(password, user.getPasswordSalt()))) {
                 return Optional.empty();
             }
+        } catch (DBIException e) {
+            log.error("user auth: get user {} database error: {}", loginName, ExceptionUtils.getMessage(e));
         } catch (Exception e) {
-            log.error("validate user computeHash error: {}", ExceptionUtils.getMessage(e));
+            log.error("user auth: validate user {} computeHash error: {}", loginName, ExceptionUtils.getMessage(e));
         }
-        return Optional.of(user);
+        return Optional.ofNullable(user);
     }
 }

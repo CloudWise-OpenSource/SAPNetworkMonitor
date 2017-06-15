@@ -4,6 +4,7 @@ import com.cloudwise.sap.niping.auth.OAuthUser;
 import com.cloudwise.sap.niping.common.constant.ReturnConstant;
 import com.cloudwise.sap.niping.common.entity.MonitorNiPingResult;
 import com.cloudwise.sap.niping.common.vo.RestfulReturnResult;
+import com.cloudwise.sap.niping.exception.NiPingException;
 import com.cloudwise.sap.niping.service.TaskService;
 import io.dropwizard.auth.Auth;
 
@@ -23,10 +24,14 @@ public class DatabusResource {
 
     @POST
     @Path("/monitor/{monitorId}/result")
-    public RestfulReturnResult result(@Auth OAuthUser user, @PathParam("monitorId") String monitorId, @NotNull @Valid MonitorNiPingResult
-            monitorNiPingResult) {
+    public RestfulReturnResult result(@Auth OAuthUser user, @PathParam("monitorId") String monitorId, @NotNull @Valid MonitorNiPingResult monitorNiPingResult) {
+        monitorNiPingResult.setAccountId(user.getAccountId());
         monitorNiPingResult.setMonitorId(monitorId);
-        taskService.saveMonitorNiPingResult(monitorNiPingResult);
+        try {
+            taskService.saveMonitorNiPingResult(monitorNiPingResult);
+        } catch (NiPingException e) {
+            return new RestfulReturnResult(e.getCode(), e.getErrorMessage(), null);
+        }
         return new RestfulReturnResult(ReturnConstant.SUCCESS, "success", null);
     }
 }
