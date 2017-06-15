@@ -14,8 +14,8 @@ import (
 	"container/list"
 	"strconv"
 	"bytes"
-	"github.com/jasonlvhit/gocron"
 	"io/ioutil"
+	"github.com/jasonlvhit/gocron"
 )
 
 var (
@@ -26,6 +26,7 @@ var (
 	monitorResult MonitorResult
 	monitorJob MonitorJob
 	lastNipingT int64
+	mark int
 )
 
 type HeartBeats struct {
@@ -92,6 +93,7 @@ func init(){
 	tr := ""
 	tr2 := ""
 	typeId := 0
+	mark = 0
 	monitorResult = MonitorResult{av2,avg,endTime,errmsg,errno,max,
 				      min,startTime, taskId,tr,tr2,typeId}
 }
@@ -149,7 +151,8 @@ func readConfig() {
 }
 
 func TaskProducer1(url string,monitorJob MonitorJob) {
-	taskMap[monitorJob.Data.TaskId] = list.New()
+	log.Println("start taskproducer")
+
 	if _,ok := taskMap[monitorJob.Data.TaskId];ok {
 		channel_result := make(chan MonitorResult,1)
 		go NipingCMD(0,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,monitorConfig["nipingaddr"],
@@ -170,8 +173,6 @@ func TaskProducer1(url string,monitorJob MonitorJob) {
 		monitorResult = MonitorResult{monitorResult_a.Av2,monitorResult_a.Avg,monitorResult_a.EndTime,monitorResult_a.Errmsg,
 					      monitorResult_a.Errno,monitorResult_a.Max,monitorResult_a.Min,monitorResult_a.StartTime,monitorResult_a.TaskId,
 					      monitorResult_b.Tr,monitorResult_b.Tr2,0}
-		fmt.Println(monitorResult)
-
 		monitorResultJson, _ := json.Marshal(monitorResult)
 		req, err := http.NewRequest("POST", url, bytes.NewBuffer(monitorResultJson))
 		fmt.Println(req)
@@ -190,53 +191,67 @@ func TaskProducer1(url string,monitorJob MonitorJob) {
 	}
 }
 
-func TaskProducer2(url string,monitorJob MonitorJob, channel chan int){
-	if _,ok := taskMap[monitorJob.Data.TaskId];ok {
-		channel_result := make(chan MonitorResult,1)
-		//go NipingCMD(1,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,monitorConfig["nipingaddr"],monitorJob.Data.JobDesc.StabilityB,monitorJob.Data.JobDesc.StabilityL,monitorJob.Data.JobDesc.StabilityD,2,channel_result)
-		go NipingCMD(0,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,monitorConfig["nipingaddr"],
-			monitorJob.Data.JobDesc.BandwithB,monitorJob.Data.JobDesc.BandwithL,0,0,channel_result)
-		list,pid := findNipingPid(monitorJob.Data.TaskId)
-		monitorResult_stab := <- channel_result
-		if list.Len() != 0 {
-			deleteNipingPid(list,pid)
-		}
-		monitorResult = MonitorResult{monitorResult_stab.Av2,monitorResult_stab.Avg,monitorResult_stab.EndTime,monitorResult_stab.Errmsg,
-					      monitorResult_stab.Errno,monitorResult_stab.Max,monitorResult_stab.Min,monitorResult_stab.StartTime,monitorResult_stab.TaskId,
-					      monitorResult_stab.Tr,monitorResult_stab.Tr2,1}
-		fmt.Println(monitorResult)
-		monitorResultJson, _ := json.Marshal(monitorResult)
-		req, err := http.NewRequest("POST", url, bytes.NewBuffer(monitorResultJson))
-		if err != nil {
-			fmt.Println("Error:", err)
-		}
-		req.Header.Set("Authorization","Bearer Zb3cVv0qzeNhYZwYbdC")
-		req.Header.Set("Content-Type","application/json")
-		client := &http.Client{}
-		resp, err1 := client.Do(req)
-		if err1 != nil {
-			log.Println("cannot get response")
-		}else {
-			if resp.StatusCode == 200 {
-				//body, _ := ioutil.ReadAll(resp.Body)
-				//fmt.Println(body)
-				fmt.Println(resp)
+func TaskProducer2(url string,monitorJob MonitorJob){
+	if mark == 1{
+		fmt.Println("TimeoutTask is Running")
+	}else {
+		log.Println("start taskproducer2")
+		if _,ok := taskMap[monitorJob.Data.TaskId];ok {
+			mark = 1
+			time.Sleep(time.Second * 30)
+			channel_result := make(chan MonitorResult,1)
+			//go NipingCMD(1,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,monitorConfig["nipingaddr"],monitorJob.Data.JobDesc.StabilityB,monitorJob.Data.JobDesc.StabilityL,monitorJob.Data.JobDesc.StabilityD,2,channel_result)
+			go NipingCMD(0,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,monitorConfig["nipingaddr"],
+				monitorJob.Data.JobDesc.BandwithB,monitorJob.Data.JobDesc.BandwithL,0,0,channel_result)
+			list,pid := findNipingPid(monitorJob.Data.TaskId)
+			monitorResult_stab := <- channel_result
+			if list.Len() != 0 {
+				deleteNipingPid(list,pid)
+			}
+			monitorResult = MonitorResult{monitorResult_stab.Av2,monitorResult_stab.Avg,monitorResult_stab.EndTime,monitorResult_stab.Errmsg,
+						      monitorResult_stab.Errno,monitorResult_stab.Max,monitorResult_stab.Min,monitorResult_stab.StartTime,monitorResult_stab.TaskId,
+						      monitorResult_stab.Tr,monitorResult_stab.Tr2,1}
+			fmt.Println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+			fmt.Println(monitorResult)
+			monitorResultJson, _ := json.Marshal(monitorResult)
+			req, err := http.NewRequest("POST", url, bytes.NewBuffer(monitorResultJson))
+			if err != nil {
+				fmt.Println("Error:", err)
+			}
+			req.Header.Set("Authorization","Bearer Zb3cVv0qzeNhYZwYbdC")
+			req.Header.Set("Content-Type","application/json")
+			client := &http.Client{}
+			mark = 0
+			resp, err1 := client.Do(req)
+			if err1 != nil {
+				log.Println("cannot get response")
+			}else {
+				if resp.StatusCode == 200 {
+					fmt.Println(resp)
+				}
 			}
 		}
 	}
-	channel <- 1
 }
 
 func startJob(monitorJob MonitorJob) {
 	if _, ok := taskMap[monitorJob.Data.TaskId]; ok {
-		//return
 		fmt.Println(monitorJob)
 	}else {
 		url := monitorConfig["serveraddr"] + "/api/databus/monitor/" + heartbeat["monitorId"] + "/result"
-		channel := make(chan int,10000)
-		gocron.Every(uint64(monitorJob.Data.Interval)).Seconds().Do(TaskProducer1,url,monitorJob)
-		go TaskProducer2(url,monitorJob,channel)
-		<- channel
+		taskMap[monitorJob.Data.TaskId] = list.New()
+		//interval := uint64(monitorJob.Data.Interval)
+		go func(){
+			t := gocron.NewScheduler()
+			t.Every(uint64(5)).Seconds().Do(TaskProducer1,url,monitorJob)
+			<- t.Start()
+		}()
+		go func(){
+			s := gocron.NewScheduler()
+			s.Every(uint64(5)).Seconds().Do(TaskProducer2,url,monitorJob)
+			<- s.Start()
+		}()
+
 	}
 }
 
@@ -250,6 +265,7 @@ func SendHeartBeat() {
 }
 
 func Producer(url string,nipingTRate int64){
+	log.Println("start heartbeat")
 	nipingT := GetNipingT(monitorConfig["nipingaddr"],nipingTRate)
 	heartbeats := HeartBeats{
 		Ip:		heartbeat["ip"],
