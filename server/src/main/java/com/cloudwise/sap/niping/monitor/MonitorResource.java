@@ -1,7 +1,6 @@
 package com.cloudwise.sap.niping.monitor;
 
 import com.cloudwise.sap.niping.auth.OAuthUser;
-import com.cloudwise.sap.niping.common.constant.ReturnConstant;
 import com.cloudwise.sap.niping.common.entity.Monitor;
 import com.cloudwise.sap.niping.common.entity.MonitorJob;
 import com.cloudwise.sap.niping.common.vo.RestfulReturnResult;
@@ -9,6 +8,7 @@ import com.cloudwise.sap.niping.exception.NiPingException;
 import com.cloudwise.sap.niping.service.MonitorService;
 import com.cloudwise.sap.niping.service.TaskService;
 import io.dropwizard.auth.Auth;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -17,6 +17,9 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.Optional;
 
+import static com.cloudwise.sap.niping.common.constant.Result.SUCCESS;
+
+@Slf4j
 @Path("/api/monitors")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -40,14 +43,18 @@ public class MonitorResource {
         monitor.setMonitorId(monitorId);
         monitor.setAccountId(user.getAccountId());
 
+        log.info("user {} monitorId {} send heartbeat {}", user, monitorId, monitor);
         monitorService.heartbeat(monitor);
         Optional<MonitorJob> job = Optional.empty();
         try {
             monitorService.saveMonitor(monitor);
             job = taskService.getNextJob(monitorId, monitor.getRunningTaskIds());
+            if (log.isInfoEnabled() && job.isPresent()) {
+                log.info("user {} monitorId {} get next job {}", user, monitorId, job.get());
+            }
         } catch (NiPingException e) {
-            return new RestfulReturnResult(e.getCode(), e.getErrorMessage(), job.orElse(null));
+            return new RestfulReturnResult(e, job.orElse(null));
         }
-        return new RestfulReturnResult(ReturnConstant.SUCCESS, "success", job.orElse(null));
+        return new RestfulReturnResult(SUCCESS, job.orElse(null));
     }
 }

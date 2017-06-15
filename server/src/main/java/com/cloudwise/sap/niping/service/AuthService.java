@@ -6,7 +6,6 @@ import com.cloudwise.sap.niping.common.utils.HashStrategyUtil;
 import com.cloudwise.sap.niping.common.vo.User;
 import com.cloudwise.sap.niping.dao.AccessCredentialsDao;
 import com.cloudwise.sap.niping.dao.UserDao;
-import com.cloudwise.sap.niping.exception.NiPingException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jvnet.hk2.annotations.Service;
