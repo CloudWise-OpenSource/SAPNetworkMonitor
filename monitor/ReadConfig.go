@@ -9,13 +9,13 @@ import (
 	"os/exec"
 	"net/http"
 	"time"
-	"io/ioutil"
 	"strings"
 	"regexp"
 	"container/list"
 	"strconv"
 	"bytes"
-	"runtime"
+	"github.com/jasonlvhit/gocron"
+	"io/ioutil"
 )
 
 var (
@@ -25,8 +25,6 @@ var (
 	taskMap = make(map[string] *list.List)
 	monitorResult MonitorResult
 	monitorJob MonitorJob
-	lastSendTime int64
-	lastHeartBeat int64
 	lastNipingT int64
 )
 
@@ -55,8 +53,8 @@ type MonitorJob struct {
 			Router		string		`json:"router"`
 			RoundTripTimeB	int		`json:"roundTripTimeB"`
 			RoundTripTimeL	int		`json:"roundTripTimeL"`
-			BandwithB	int		`json:"bandwithB"`
-			BandwithL	int		`json:"bandwithL"`
+			BandwithB	int		`json:"bandwidthB"`
+			BandwithL	int		`json:"bandwidthL"`
 			StabilityB	int		`json:"stabilityB"`
 			StabilityD	int		`json:"stabilityD"`
 			StabilityL	int		`json:"stabilityL"`
@@ -94,8 +92,6 @@ func init(){
 	tr := ""
 	tr2 := ""
 	typeId := 0
-	lastSendTime = 0
-	lastHeartBeat = 0
 	monitorResult = MonitorResult{av2,avg,endTime,errmsg,errno,max,
 				      min,startTime, taskId,tr,tr2,typeId}
 }
@@ -115,6 +111,7 @@ func GetNipingT(nipingaddr string,nipingTRate int64) string {
 			fmt.Println(err.Error())
 		}
 		nipingT := string(cmd)
+		lastNipingT = time.Now().Unix()
 		return nipingT
 	}else {
 		nipingT := ""
@@ -151,201 +148,160 @@ func readConfig() {
 	}
 }
 
-func TaskProducer1(jobQueue chan<- http.Response,url string,monitorJob MonitorJob,channel chan int) {
+func TaskProducer1(url string,monitorJob MonitorJob) {
 	taskMap[monitorJob.Data.TaskId] = list.New()
-	for true {
-		if _,ok := taskMap[monitorJob.Data.TaskId];ok {
-			timeSpace := time.Now().Unix() - lastSendTime
-			if timeSpace > int64(monitorJob.Data.Interval) {
-				channel_result := make(chan MonitorResult,1)
-				go NipingCMD(0,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,heartbeat["nipingaddr"],
-					monitorJob.Data.JobDesc.BandwithB,monitorJob.Data.JobDesc.BandwithL,0,0,channel_result)
-				list_a,pid_a := findNipingPid(monitorJob.Data.TaskId)
-				monitorResult_a  := <- channel_result
+	if _,ok := taskMap[monitorJob.Data.TaskId];ok {
+		channel_result := make(chan MonitorResult,1)
+		go NipingCMD(0,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,monitorConfig["nipingaddr"],
+			monitorJob.Data.JobDesc.BandwithB,monitorJob.Data.JobDesc.BandwithL,0,0,channel_result)
+		list_a,pid_a := findNipingPid(monitorJob.Data.TaskId)
+		monitorResult_a  := <- channel_result
+		if list_a.Len() != 0 {
+			deleteNipingPid(list_a,pid_a)
+		}
+		go NipingCMD(0,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,monitorConfig["nipingaddr"],
+			monitorJob.Data.JobDesc.RoundTripTimeB, monitorJob.Data.JobDesc.RoundTripTimeL,0,1,channel_result)
+		list_b,pid_b := findNipingPid(monitorJob.Data.TaskId)
+		monitorResult_b := <- channel_result
+		if list_b.Len() != 0 {
+			deleteNipingPid(list_b,pid_b)
+		}
+		//close(channel_result)
+		monitorResult = MonitorResult{monitorResult_a.Av2,monitorResult_a.Avg,monitorResult_a.EndTime,monitorResult_a.Errmsg,
+					      monitorResult_a.Errno,monitorResult_a.Max,monitorResult_a.Min,monitorResult_a.StartTime,monitorResult_a.TaskId,
+					      monitorResult_b.Tr,monitorResult_b.Tr2,0}
+		fmt.Println(monitorResult)
 
-				deleteNipingPid(list_a,pid_a)
-				go NipingCMD(0,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,heartbeat["nipingaddr"],
-					monitorJob.Data.JobDesc.RoundTripTimeB, monitorJob.Data.JobDesc.RoundTripTimeL,0,1,channel_result)
-				list_b,pid_b := findNipingPid(monitorJob.Data.TaskId)
-				monitorResult_b := <- channel_result
-
-				deleteNipingPid(list_b,pid_b)
-				close(channel_result)
-				monitorResult = MonitorResult{monitorResult_a.Av2,monitorResult_a.Avg,monitorResult_a.EndTime,monitorResult_a.Errmsg,
-							      monitorResult_a.Errno,monitorResult_a.Max,monitorResult_a.Min,monitorResult_a.StartTime,monitorResult_a.TaskId,
-							      monitorResult_b.Tr,monitorResult_b.Tr2,0}
-
-				monitorResultJson, _ := json.Marshal(monitorResult)
-				req, err := http.NewRequest("POST", url, bytes.NewBuffer(monitorResultJson))
-				if err != nil {
-					fmt.Println("Error:", err)
-				}
-				client := &http.Client{}
-				resp, err1 := client.Do(req)
-				if err1 != nil {
-					log.Println("cannot get response")
-				}else {
-					jobQueue <- *resp
-				}
-				lastSendTime = time.Now().Unix()
-			}
+		monitorResultJson, _ := json.Marshal(monitorResult)
+		req, err := http.NewRequest("POST", url, bytes.NewBuffer(monitorResultJson))
+		fmt.Println(req)
+		if err != nil {
+			fmt.Println("Error:", err)
+		}
+		req.Header.Set("Authorization","Bearer Zb3cVv0qzeNhYZwYbdC")
+		req.Header.Set("Content-Type","application/json")
+		client := &http.Client{}
+		resp, err1 := client.Do(req)
+		if err1 != nil {
+			log.Println("cannot get response")
 		}else {
-			channel <- 1
-			break
+			fmt.Println(resp)
 		}
 	}
 }
 
-func TaskConsumer1(jobQueue <-chan http.Response) {
-	for true{
-		resp := <- jobQueue
-		if resp.StatusCode == 200 {
-			body, _ := ioutil.ReadAll(resp.Body)
-			fmt.Println(body)
-		}
-	}
-}
-
-func TaskProducer2(jobQueue chan<- http.Response,url string,monitorJob MonitorJob,channel chan int){
-	for true {
-		if _,ok := taskMap[monitorJob.Data.TaskId];ok {
-			channel_result := make(chan MonitorResult,1)
-			go NipingCMD(1,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,heartbeat["nipingaddr"],monitorJob.Data.JobDesc.StabilityB,monitorJob.Data.JobDesc.StabilityL,monitorJob.Data.JobDesc.StabilityD,2,channel_result)
-			list,pid := findNipingPid(monitorJob.Data.TaskId)
-			monitorResult_stab := <- channel_result
+func TaskProducer2(url string,monitorJob MonitorJob, channel chan int){
+	if _,ok := taskMap[monitorJob.Data.TaskId];ok {
+		channel_result := make(chan MonitorResult,1)
+		//go NipingCMD(1,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,monitorConfig["nipingaddr"],monitorJob.Data.JobDesc.StabilityB,monitorJob.Data.JobDesc.StabilityL,monitorJob.Data.JobDesc.StabilityD,2,channel_result)
+		go NipingCMD(0,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,monitorConfig["nipingaddr"],
+			monitorJob.Data.JobDesc.BandwithB,monitorJob.Data.JobDesc.BandwithL,0,0,channel_result)
+		list,pid := findNipingPid(monitorJob.Data.TaskId)
+		monitorResult_stab := <- channel_result
+		if list.Len() != 0 {
 			deleteNipingPid(list,pid)
-			monitorResult = MonitorResult{monitorResult_stab.Av2,monitorResult_stab.Avg,monitorResult_stab.EndTime,monitorResult_stab.Errmsg,
-						      monitorResult_stab.Errno,monitorResult_stab.Max,monitorResult_stab.Min,monitorResult_stab.StartTime,monitorResult_stab.TaskId,
-						      monitorResult_stab.Tr,monitorResult_stab.Tr2,1}
-			lastSendTime = time.Now().Unix()
-			monitorResultJson, _ := json.Marshal(monitorResult)
-			req, err := http.NewRequest("POST", url, bytes.NewBuffer(monitorResultJson))
-			if err != nil {
-				fmt.Println("Error:", err)
-			}
-			client := &http.Client{}
-			resp, err1 := client.Do(req)
-			if err1 != nil {
-				log.Println("cannot get response")
-				channel <- 1
-			}else {
-				jobQueue <- *resp
+		}
+		monitorResult = MonitorResult{monitorResult_stab.Av2,monitorResult_stab.Avg,monitorResult_stab.EndTime,monitorResult_stab.Errmsg,
+					      monitorResult_stab.Errno,monitorResult_stab.Max,monitorResult_stab.Min,monitorResult_stab.StartTime,monitorResult_stab.TaskId,
+					      monitorResult_stab.Tr,monitorResult_stab.Tr2,1}
+		fmt.Println(monitorResult)
+		monitorResultJson, _ := json.Marshal(monitorResult)
+		req, err := http.NewRequest("POST", url, bytes.NewBuffer(monitorResultJson))
+		if err != nil {
+			fmt.Println("Error:", err)
+		}
+		req.Header.Set("Authorization","Bearer Zb3cVv0qzeNhYZwYbdC")
+		req.Header.Set("Content-Type","application/json")
+		client := &http.Client{}
+		resp, err1 := client.Do(req)
+		if err1 != nil {
+			log.Println("cannot get response")
+		}else {
+			if resp.StatusCode == 200 {
+				//body, _ := ioutil.ReadAll(resp.Body)
+				//fmt.Println(body)
+				fmt.Println(resp)
 			}
 		}
 	}
-}
-
-func TaskConsumer2(jobQueue <-chan http.Response){
-	resp := <- jobQueue
-	if resp.StatusCode == 200 {
-		body, _ := ioutil.ReadAll(resp.Body)
-		fmt.Println(body)
-	}
+	channel <- 1
 }
 
 func startJob(monitorJob MonitorJob) {
-	url := "http://10.0.5.229:8080/api/databus/monitor/" + heartbeat["monitorId"] + "/result"
-	channel1 := make(chan int,1)
-	channel2 := make(chan int,1)
-	go func() {
-		jobQueue1 := make(chan http.Response, 1)
-		go TaskProducer1(jobQueue1,url,monitorJob,channel1)
-		go TaskConsumer1(jobQueue1)
-
-	}()
-	<- channel1
-	close(channel1)
-	go func() {
-		jobQueue2 := make(chan http.Response, 1)
-		go TaskProducer2(jobQueue2,url,monitorJob,channel2)
-		go TaskConsumer2(jobQueue2)
-
-	}()
-
-	<- channel2
-
-	close(channel2)
+	if _, ok := taskMap[monitorJob.Data.TaskId]; ok {
+		//return
+		fmt.Println(monitorJob)
+	}else {
+		url := monitorConfig["serveraddr"] + "/api/databus/monitor/" + heartbeat["monitorId"] + "/result"
+		channel := make(chan int,10000)
+		gocron.Every(uint64(monitorJob.Data.Interval)).Seconds().Do(TaskProducer1,url,monitorJob)
+		go TaskProducer2(url,monitorJob,channel)
+		<- channel
+	}
 }
 
 func SendHeartBeat() {
 	readConfig()
-	url := "http://10.0.5.229:8080/api/monitors/monitor/" + heartbeat["monitorId"] + "/heartbeat"
-	heartbeatRate,_ := strconv.ParseInt(monitorConfig["heartbeatrate"],10,64)
+	url := monitorConfig["serveraddr"] + "/api/monitors/monitor/" + heartbeat["monitorId"] + "/heartbeat"
+	heartbeatRate,_ := strconv.ParseUint(monitorConfig["heartbeatrate"],0,64)
 	nipingTRate,_ := strconv.ParseInt(monitorConfig["nipingtate"],10,64)
-	runtime.GOMAXPROCS(20)
-	queue := make(chan http.Response, 1)
-	go Producer(queue,url,heartbeatRate,nipingTRate)
-	go Consumer(queue)
-	time.Sleep(time.Hour * 1000000)
+	gocron.Every(heartbeatRate).Seconds().Do(Producer,url,nipingTRate)
+	<- gocron.Start()
 }
 
-func Producer(queue chan<- http.Response,url string,heartbeatRate int64,nipingTRate int64){
-	for true {
-		if time.Now().Unix() - lastHeartBeat > heartbeatRate {
-			nipingT := GetNipingT(monitorConfig["nipingaddr"],nipingTRate)
-			heartbeats := HeartBeats{
-				Ip:		heartbeat["ip"],
-				Name:		heartbeat["name"],
-				Country:	heartbeat["country"],
-				Area:		heartbeat["area"],
-				Province:	heartbeat["province"],
-				City:		heartbeat["city"],
-				Isp:		heartbeat["isp"],
-				MonitorId:	heartbeat["monitorId"],
-				NipingT:	nipingT,
-				RunningTaskIds:	getTaskIds(),
-			}
-			jsons, _ := json.Marshal(heartbeats)
-
-			req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsons))
-			if err != nil {
-				fmt.Println("Error:", err)
-			}
-			req.Header.Set("Authorization","Bearer Zb3cVv0qzeNhYZwYbdC")
-			req.Header.Set("Content-Type","application/json")
-			fmt.Println(req)
-			client := &http.Client{}
-			resp,err1 :=client.Do(req)
-			fmt.Println(resp)
-			if err1 != nil {
-				log.Println("cannot get the response")
-			}else {
-				queue <- *resp
-			}
-			lastHeartBeat = time.Now().Unix()
-		}
+func Producer(url string,nipingTRate int64){
+	nipingT := GetNipingT(monitorConfig["nipingaddr"],nipingTRate)
+	heartbeats := HeartBeats{
+		Ip:		heartbeat["ip"],
+		Name:		heartbeat["name"],
+		Country:	heartbeat["country"],
+		Area:		heartbeat["area"],
+		Province:	heartbeat["province"],
+		City:		heartbeat["city"],
+		Isp:		heartbeat["isp"],
+		MonitorId:	heartbeat["monitorId"],
+		NipingT:	nipingT,
+		RunningTaskIds:	getTaskIds(),
 	}
-}
+	jsons, _ := json.Marshal(heartbeats)
 
-func Consumer(queue <-chan http.Response){
-	for true {
-		resp := <- queue
-		if resp.StatusCode == 200 {
-			log.Println("received response")
-			buf := new(bytes.Buffer)
-			buf.ReadFrom(resp.Body)
-			s := buf.String()
-			json.Unmarshal([]byte(s), &monitorJob)
-			fmt.Println(monitorJob.Data.TaskId)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsons))
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	req.Header.Set("Authorization","Bearer Zb3cVv0qzeNhYZwYbdC")
+	req.Header.Set("Content-Type","application/json")
+	fmt.Println(req)
+	client := &http.Client{}
+	resp,err1 :=client.Do(req)
+	fmt.Println(resp)
+	if err1 != nil {
+		log.Println("cannot get the response")
+	}
+	if resp.StatusCode == 200 {
+		log.Println("received response")
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(resp.Body)
+		s := buf.String()
+		json.Unmarshal([]byte(s), &monitorJob)
 
-			if monitorJob.Data.MonitorId == heartbeat["monitorId"] {
-				switch monitorJob.Data.ActionType {
-				case 0:
-					log.Print("start task0")
-					deleteMap(monitorJob.Data.TaskId, taskMap)
-					log.Println("stop task:" +  monitorJob.Data.TaskId)
-					break
-				case 1:
-					log.Print("start task1")
-					startJob(monitorJob)
-					break
-				case 2:
-					log.Print("start task2")
-					deleteMap(monitorJob.Data.TaskId, taskMap)
-					log.Println("stop task:" +  monitorJob.Data.TaskId)
-					startJob(monitorJob)
-					break
-				}
+		if monitorJob.Data.MonitorId == heartbeat["monitorId"] {
+			switch monitorJob.Data.ActionType {
+			case 0:
+				log.Print("start task0")
+				deleteMap(monitorJob.Data.TaskId, taskMap)
+				log.Println("stop task:" +  monitorJob.Data.TaskId)
+				break
+			case 1:
+				log.Print("start task1")
+				startJob(monitorJob)
+				break
+			case 2:
+				log.Print("start task2")
+				deleteMap(monitorJob.Data.TaskId, taskMap)
+				log.Println("stop task:" +  monitorJob.Data.TaskId)
+				startJob(monitorJob)
+				break
 			}
 		}
 	}
@@ -379,7 +335,6 @@ func findNipingPid(taskId string) (*list.List,*list.Element){
 		if nipingFlag == true {
 			pid := strings.Fields(array[i])[1]
 			l.PushBack(pid)
-			fmt.Println(l)
 		}
 	}
 	pid := l.Back()
@@ -390,7 +345,7 @@ func findNipingPid(taskId string) (*list.List,*list.Element){
 // 根据pid删除
 func deleteMap(taskId string, taskMap map[string] *list.List){
 	for e := taskMap[taskId].Front(); e != nil; e = e.Next() {
-		fmt.Print(e.Value) //输出l2的值,460123
+		fmt.Print(e.Value)
 		_,err := exec.Command("cmd","/C","taskkill /pid",e.Value.(string),"/f").Output()
 		if err != nil {
 			fmt.Println(err.Error())
@@ -403,6 +358,7 @@ func NipingCMD(typeId int,taskId string, router string, nipingaddr string, b_arg
 	startTime := time.Now().Unix()
 	cmd := exec.Command("cmd", "/C", nipingaddr +"niping","-c","-H",router,"-B",strconv.Itoa(b_args),
 		"-L", strconv.Itoa(l_args), "-D", strconv.Itoa(d_args))
+
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		fmt.Println("StdoutPipe: " + err.Error())
@@ -431,19 +387,19 @@ func NipingCMD(typeId int,taskId string, router string, nipingaddr string, b_arg
 		}
 		monitorResult = MonitorResult{"","",endTime,monitorResult.Errmsg,monitorResult.Errno,
 					      "","", startTime,taskId,"","",typeId}
+		gocron.Remove(TaskProducer1)
 		channel <- monitorResult
+		return
 	}
 	bytes, err := ioutil.ReadAll(stdout)
 	if err != nil {
 		fmt.Println("ReadAll stdout: ", err.Error())
 	}
-	if err := cmd.Wait(); err != nil {
-		fmt.Println("Wait: ", err.Error())
-	}
 	endTime := time.Now().Unix()
 	array := strings.Split(string(bytes[:]),"\r")
 	switch executeid {
 	case 0:
+		log.Println("case 0")
 		for i := 0;i< len(array);i++ {
 			if len(strings.Fields(array[i])) == 3 {
 				switch strings.Fields(array[i])[0] {
@@ -466,6 +422,7 @@ func NipingCMD(typeId int,taskId string, router string, nipingaddr string, b_arg
 					      monitorResult.Max,monitorResult.Min, startTime,taskId,"","",0}
 		break
 	case 1:
+		log.Println("case 1")
 		for i := 0;i< len(array);i++ {
 			if len(strings.Fields(array[i])) == 3 {
 				switch strings.Fields(array[i])[0] {
@@ -482,6 +439,7 @@ func NipingCMD(typeId int,taskId string, router string, nipingaddr string, b_arg
 					       "","", 0,taskId,monitorResult.Tr,monitorResult.Tr2,0}
 		break
 	default:
+		log.Println("case others")
 		for i := 0;i< len(array);i++ {
 			if len(strings.Fields(array[i])) == 3 {
 				switch strings.Fields(array[i])[0] {
@@ -507,9 +465,11 @@ func NipingCMD(typeId int,taskId string, router string, nipingaddr string, b_arg
 			}
 		}
 		monitorResult  = MonitorResult{monitorResult.Av2,"",endTime,"","",
-			monitorResult.Max,monitorResult.Min, startTime,taskId,monitorResult.Tr,monitorResult.Tr2,0}
+					       monitorResult.Max,monitorResult.Min, startTime,taskId,monitorResult.Tr,monitorResult.Tr2,0}
 		break
 	}
+
+	fmt.Println(monitorResult)
 	channel <- monitorResult
 }
 
