@@ -16,18 +16,23 @@ import (
 	"bytes"
 	"io/ioutil"
 	"github.com/jasonlvhit/gocron"
+	"os"
 )
 
 var (
 	configFile = flag.String("configfile", "config.ini", "General configuration file")
-	heartbeat = make(map[string]string)
-	monitorConfig = make(map[string]string)
+	heartbeat = make(map[string] string)
+	monitorConfig = make(map[string] string)
 	taskMap = make(map[string] *list.List)
 	monitorResult MonitorResult
-	monitorJob MonitorJob
+	cronJob = make(map[string] *Cron)
 	lastNipingT int64
 	mark int
 )
+
+type Cron struct {
+	schedulers []*gocron.Scheduler
+}
 
 type HeartBeats struct {
 	Ip		string		`json:"ip"`
@@ -95,7 +100,7 @@ func init(){
 	typeId := 0
 	mark = 0
 	monitorResult = MonitorResult{av2,avg,endTime,errmsg,errno,max,
-				      min,startTime, taskId,tr,tr2,typeId}
+								  min,startTime, taskId,tr,tr2,typeId}
 }
 
 func getTaskIds() []string {
@@ -110,7 +115,8 @@ func GetNipingT(nipingaddr string,nipingTRate int64) string {
 	if time.Now().Unix() - lastNipingT > nipingTRate {
 		cmd,err := exec.Command("cmd","/C",nipingaddr +"niping","-t").Output()
 		if err != nil {
-			fmt.Println(err.Error())
+			fmt.Println("configuration error")
+			os.Exit(1)
 		}
 		nipingT := string(cmd)
 		lastNipingT = time.Now().Unix()
@@ -152,7 +158,8 @@ func readConfig() {
 
 func TaskProducer1(url string,monitorJob MonitorJob) {
 	log.Println("start taskproducer")
-
+	fmt.Println("@@@@@@@@@" + strconv.Itoa(monitorJob.Data.Interval))  // job没有变
+	fmt.Println("{{{{{{{{{{{" + strconv.Itoa(len(taskMap)))
 	if _,ok := taskMap[monitorJob.Data.TaskId];ok {
 		channel_result := make(chan MonitorResult,1)
 		go NipingCMD(0,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,monitorConfig["nipingaddr"],
@@ -171,8 +178,8 @@ func TaskProducer1(url string,monitorJob MonitorJob) {
 		}
 		//close(channel_result)
 		monitorResult = MonitorResult{monitorResult_a.Av2,monitorResult_a.Avg,monitorResult_a.EndTime,monitorResult_a.Errmsg,
-					      monitorResult_a.Errno,monitorResult_a.Max,monitorResult_a.Min,monitorResult_a.StartTime,monitorResult_a.TaskId,
-					      monitorResult_b.Tr,monitorResult_b.Tr2,0}
+									  monitorResult_a.Errno,monitorResult_a.Max,monitorResult_a.Min,monitorResult_a.StartTime,monitorResult_a.TaskId,
+									  monitorResult_b.Tr,monitorResult_b.Tr2,0}
 		monitorResultJson, _ := json.Marshal(monitorResult)
 		req, err := http.NewRequest("POST", url, bytes.NewBuffer(monitorResultJson))
 		fmt.Println(req)
@@ -188,6 +195,8 @@ func TaskProducer1(url string,monitorJob MonitorJob) {
 		}else {
 			fmt.Println(resp)
 		}
+	}else {
+
 	}
 }
 
@@ -198,7 +207,7 @@ func TaskProducer2(url string,monitorJob MonitorJob){
 		log.Println("start taskproducer2")
 		if _,ok := taskMap[monitorJob.Data.TaskId];ok {
 			mark = 1
-			time.Sleep(time.Second * 30)
+			time.Sleep(time.Second * 60)
 			channel_result := make(chan MonitorResult,1)
 			//go NipingCMD(1,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,monitorConfig["nipingaddr"],monitorJob.Data.JobDesc.StabilityB,monitorJob.Data.JobDesc.StabilityL,monitorJob.Data.JobDesc.StabilityD,2,channel_result)
 			go NipingCMD(0,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,monitorConfig["nipingaddr"],
@@ -209,8 +218,8 @@ func TaskProducer2(url string,monitorJob MonitorJob){
 				deleteNipingPid(list,pid)
 			}
 			monitorResult = MonitorResult{monitorResult_stab.Av2,monitorResult_stab.Avg,monitorResult_stab.EndTime,monitorResult_stab.Errmsg,
-						      monitorResult_stab.Errno,monitorResult_stab.Max,monitorResult_stab.Min,monitorResult_stab.StartTime,monitorResult_stab.TaskId,
-						      monitorResult_stab.Tr,monitorResult_stab.Tr2,1}
+										  monitorResult_stab.Errno,monitorResult_stab.Max,monitorResult_stab.Min,monitorResult_stab.StartTime,monitorResult_stab.TaskId,
+										  monitorResult_stab.Tr,monitorResult_stab.Tr2,1}
 			fmt.Println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 			fmt.Println(monitorResult)
 			monitorResultJson, _ := json.Marshal(monitorResult)
@@ -235,24 +244,24 @@ func TaskProducer2(url string,monitorJob MonitorJob){
 }
 
 func startJob(monitorJob MonitorJob) {
-	if _, ok := taskMap[monitorJob.Data.TaskId]; ok {
-		fmt.Println(monitorJob)
-	}else {
-		url := monitorConfig["serveraddr"] + "/api/databus/monitor/" + heartbeat["monitorId"] + "/result"
-		taskMap[monitorJob.Data.TaskId] = list.New()
-		//interval := uint64(monitorJob.Data.Interval)
-		go func(){
-			t := gocron.NewScheduler()
-			t.Every(uint64(5)).Seconds().Do(TaskProducer1,url,monitorJob)
-			<- t.Start()
-		}()
-		go func(){
-			s := gocron.NewScheduler()
-			s.Every(uint64(5)).Seconds().Do(TaskProducer2,url,monitorJob)
-			<- s.Start()
-		}()
+	url := monitorConfig["resultaddr"] + "/api/databus/monitor/" + heartbeat["monitorId"] + "/result"
+	fmt.Println("%%%%%%%%%" + monitorJob.Data.TaskId)
+	fmt.Println("111111111111==============================================================")
+	//cronSchedulers := new(Cron)
+	cronJob[monitorJob.Data.TaskId] = new(Cron)
+	go func(){
+		s := gocron.NewScheduler()
+		cronJob[monitorJob.Data.TaskId].schedulers = append(cronJob[monitorJob.Data.TaskId].schedulers,s)
+		s.Every(uint64(5)).Seconds().Do(TaskProducer1,url,monitorJob)
+		<- s.Start()
+	}()
 
-	}
+	go func() {
+		t := gocron.NewScheduler()
+		cronJob[monitorJob.Data.TaskId].schedulers = append(cronJob[monitorJob.Data.TaskId].schedulers,t)
+		t.Every(uint64(5)).Seconds().Do(TaskProducer2,url,monitorJob)
+		<- t.Start()
+	}()
 }
 
 func SendHeartBeat() {
@@ -280,7 +289,7 @@ func Producer(url string,nipingTRate int64){
 		RunningTaskIds:	getTaskIds(),
 	}
 	jsons, _ := json.Marshal(heartbeats)
-
+	monitorJob := new(MonitorJob)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsons))
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -290,35 +299,37 @@ func Producer(url string,nipingTRate int64){
 	fmt.Println(req)
 	client := &http.Client{}
 	resp,err1 :=client.Do(req)
-	fmt.Println(resp)
 	if err1 != nil {
 		log.Println("cannot get the response")
+		gocron.Clear()
+		os.Exit(1)
 	}
-	if resp.StatusCode == 200 {
-		log.Println("received response")
-		buf := new(bytes.Buffer)
-		buf.ReadFrom(resp.Body)
-		s := buf.String()
-		json.Unmarshal([]byte(s), &monitorJob)
+	log.Println("received response")
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(resp.Body)
+	s := buf.String()
+	json.Unmarshal([]byte(s), &monitorJob)
 
-		if monitorJob.Data.MonitorId == heartbeat["monitorId"] {
-			switch monitorJob.Data.ActionType {
-			case 0:
-				log.Print("start task0")
-				deleteMap(monitorJob.Data.TaskId, taskMap)
-				log.Println("stop task:" +  monitorJob.Data.TaskId)
-				break
-			case 1:
-				log.Print("start task1")
-				startJob(monitorJob)
-				break
-			case 2:
-				log.Print("start task2")
-				deleteMap(monitorJob.Data.TaskId, taskMap)
-				log.Println("stop task:" +  monitorJob.Data.TaskId)
-				startJob(monitorJob)
-				break
-			}
+	fmt.Println("###################" + s)
+	fmt.Println("&&&&&&&&&&&    " + monitorJob.Data.MonitorId)
+	if monitorJob.Data.MonitorId == heartbeat["monitorId"] {
+		switch monitorJob.Data.ActionType {
+		case 0:
+			log.Print("start task0")
+			deleteMap(monitorJob.Data.TaskId, taskMap)
+			log.Println("stop task:" +  monitorJob.Data.TaskId)
+			break
+		case 1:
+			log.Print("start task1")
+			taskMap[monitorJob.Data.TaskId] = list.New()
+			startJob(*monitorJob)
+			break
+		case 2:
+			log.Print("start task2")
+			deleteMap(monitorJob.Data.TaskId, taskMap)
+			log.Println("stop task:" +  monitorJob.Data.TaskId)
+			startJob(*monitorJob)
+			break
 		}
 	}
 }
@@ -360,14 +371,25 @@ func findNipingPid(taskId string) (*list.List,*list.Element){
 
 // 根据pid删除
 func deleteMap(taskId string, taskMap map[string] *list.List){
-	for e := taskMap[taskId].Front(); e != nil; e = e.Next() {
-		fmt.Print(e.Value)
-		_,err := exec.Command("cmd","/C","taskkill /pid",e.Value.(string),"/f").Output()
-		if err != nil {
-			fmt.Println(err.Error())
+	if _,ok := taskMap[taskId];ok {
+		for e := taskMap[taskId].Front(); e != nil; e = e.Next() {
+			fmt.Print(e.Value)
+			_,err := exec.Command("cmd","/C","taskkill /pid",e.Value.(string),"/f").Output()
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		}
+		delete(taskMap,taskId)
+		fmt.Println("(((((((((((((((((((((")
+		fmt.Println(len(cronJob[taskId].schedulers))
+		for _,v := range cronJob[taskId].schedulers {
+			v.Clear()
+		}
+	}else {
+		fmt.Println(">>>>>>>>>>")
 	}
-	delete(taskMap,taskId)
+
+
 }
 
 func NipingCMD(typeId int,taskId string, router string, nipingaddr string, b_args int, l_args int, d_args int,executeid int, channel chan MonitorResult) {
@@ -402,7 +424,7 @@ func NipingCMD(typeId int,taskId string, router string, nipingaddr string, b_arg
 			}
 		}
 		monitorResult = MonitorResult{"","",endTime,monitorResult.Errmsg,monitorResult.Errno,
-					      "","", startTime,taskId,"","",typeId}
+									  "","", startTime,taskId,"","",typeId}
 		gocron.Remove(TaskProducer1)
 		channel <- monitorResult
 		return
@@ -435,7 +457,7 @@ func NipingCMD(typeId int,taskId string, router string, nipingaddr string, b_arg
 			}
 		}
 		monitorResult = MonitorResult{monitorResult.Av2,monitorResult.Avg,endTime,"","",
-					      monitorResult.Max,monitorResult.Min, startTime,taskId,"","",0}
+									  monitorResult.Max,monitorResult.Min, startTime,taskId,"","",0}
 		break
 	case 1:
 		log.Println("case 1")
@@ -452,7 +474,7 @@ func NipingCMD(typeId int,taskId string, router string, nipingaddr string, b_arg
 			}
 		}
 		monitorResult  = MonitorResult{"","",0,"","",
-					       "","", 0,taskId,monitorResult.Tr,monitorResult.Tr2,0}
+									   "","", 0,taskId,monitorResult.Tr,monitorResult.Tr2,0}
 		break
 	default:
 		log.Println("case others")
@@ -481,7 +503,7 @@ func NipingCMD(typeId int,taskId string, router string, nipingaddr string, b_arg
 			}
 		}
 		monitorResult  = MonitorResult{monitorResult.Av2,"",endTime,"","",
-					       monitorResult.Max,monitorResult.Min, startTime,taskId,monitorResult.Tr,monitorResult.Tr2,0}
+									   monitorResult.Max,monitorResult.Min, startTime,taskId,monitorResult.Tr,monitorResult.Tr2,0}
 		break
 	}
 
