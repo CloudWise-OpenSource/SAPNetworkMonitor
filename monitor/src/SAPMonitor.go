@@ -21,7 +21,7 @@ import (
 )
 
 var (
-	configFile = flag.String("configfile", "config.ini", "General configuration file")
+	configFile = flag.String("configfile", "monitor/config.ini", "General configuration file")
 	heartbeat = make(map[string] string)
 	serverInfo = make(map[string] string)
 	taskMap = make(map[string] *list.List)
