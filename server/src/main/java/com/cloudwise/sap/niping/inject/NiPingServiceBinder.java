@@ -3,6 +3,7 @@ package com.cloudwise.sap.niping.inject;
 import com.cloudwise.sap.niping.SapConfiguration;
 import com.cloudwise.sap.niping.auth.SapBasicAuthenticator;
 import com.cloudwise.sap.niping.auth.SapOAuthenticator;
+import com.cloudwise.sap.niping.common.vo.converter.TaskConverter;
 import com.cloudwise.sap.niping.dao.*;
 import com.cloudwise.sap.niping.service.AuthService;
 import com.cloudwise.sap.niping.service.MonitorService;
@@ -42,6 +43,7 @@ public class NiPingServiceBinder extends AbstractBinder {
         bind(AuthService.class).in(Singleton.class).to(AuthService.class);
         bind(MonitorService.class).in(Singleton.class).to(MonitorService.class);
         bind(TaskService.class).in(Singleton.class).to(TaskService.class);
+        bind(TaskConverter.class).in(Singleton.class).to(TaskConverter.class);
         //auth
         bind(SapOAuthenticator.class).in(Singleton.class).to(SapOAuthenticator.class);
         bind(SapBasicAuthenticator.class).in(Singleton.class).to(SapBasicAuthenticator.class);

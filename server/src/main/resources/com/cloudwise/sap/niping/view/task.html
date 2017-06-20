@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>SAP系统健康监控平台</title>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css" />
+	<link rel="stylesheet" href="/vendor/bootstrap/bootstrap-responsive.min.css" />
+	<link rel="stylesheet" href="/static/css/uniform.css" />
+	<!--<link rel="stylesheet" href="/vendor/bootstrap/select2.css" />-->
+	<link rel="stylesheet" href="/static/css/matrix-style.css" />
+	<link rel="stylesheet" href="/static/css/matrix-media.css" />
+	<link href="/vendor/font-awesome/css/font-awesome.css" rel="stylesheet" />
+</head>
+<body>
+
+<!--Header-part-->
+<div id="header">
+  <h1><a href="dashboard.html">SAP系统健康监控平台</a></h1>
+</div>
+<!--close-Header-part--> 
+
+<!--sidebar-menu-->
+
+<div id="sidebar"> 
+  <a href="#" class="visible-phone"><i class="icon icon-th"></i>监控任务</a>
+  <ul>
+    <li><a href="index.html"><i class="icon icon-home"></i> <span>监测点</span></a> </li>
+    <li class="active"><a href="tables.html"><i class="icon icon-th"></i> <span>监控任务</span></a></li>
+  </ul>
+</div>
+<div id="content">
+  <div id="content-header">
+    <div id="breadcrumb"> <a href="#" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <a href="#" class="current">Tables</a> </div>
+    <h1>监控任务列表</h1>
+  </div>
+  <div class="container-fluid">
+    <hr>
+    <div class="row-fluid">
+      <div class="span12">
+      	<div class="widget-box">
+     
+          <div class="widget-content nopadding">
+            <table class="table table-bordered data-table">
+              <thead>
+                <tr>
+                  <th>任务名称</th>
+                  <th>定时时长</th>
+                  <th>任务状态</th>
+                  <th>操作</th>
+                </tr>
+                <!--<tr>
+                  <th>bandwidthB</th>
+                  <th>bandwidthL</th>
+                  <th>idleTimeoutD</th>
+                  <th>roundTripTimeB</th>
+                  <th>roundTripTimeL</th>
+                  <th>router</th>
+                  <th>stabilityB</th>
+                  <th>stabilityD</th>
+                  <th>stabilityL</th>
+                </tr>-->
+              </thead>
+              <tbody>
+                <tr class="gradeX">
+                  <td>******</td>
+                  <td>3000</td>
+                  <td>enable</td>
+                  <td>
+                  	<a href="">编辑</a>
+                  	<a href="">删除</a>
+                  	<a href="">查看</a>
+                  </td>
+                </tr>
+               
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!--Footer-part-->
+<div class="row-fluid">
+  <div id="footer" class="span12"> 2013 &copy; Matrix Admin. More Templates <a href="http://www.jinliniuan.com/" target="_blank">金林苑</a></div>
+</div>
+<!--end-Footer-part-->
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script src="/vendor/jquery/jquery.ui.custom.js"></script>
+<script src="/vendor/bootstrap/bootstrap.min.js"></script>
+<script src="/vendor/jquery/jquery.uniform.js"></script>
+<!--<script src="/vendor/jquery/select2.min.js"></script> -->
+<script src="/vendor/jquery/jquery.dataTables.min.js"></script>
+<script src="/static/js/matrix.js"></script>
+<script src="/static/js/matrix.tables.js"></script>
+</body>
+</html>

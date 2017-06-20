@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+    <title>级联菜单</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style>
+        body,select
+        {
+            font-size:9pt;
+            font-family:Verdana;
+        }
+        a
+        {
+            color:red;
+            text-decoration:none;
+        }
+        a:hover{
+            text-decoration:underline;
+        }
+    </style>
+
+    <SCRIPT LANGUAGE="JavaScript">
+        <!--
+        function Dsy()
+        {
+            this.Items = {};
+        }
+        Dsy.prototype.add = function(id,iArray)
+        {
+            this.Items[id] = iArray;
+        }
+        Dsy.prototype.Exists = function(id)
+        {
+            if(typeof(this.Items[id]) == "undefined") return false;
+            return true;
+        }
+        function change(v){
+            var str="0";
+            for(i=0;i<v;i++){ str+=("_"+(document.getElementById(s[i]).selectedIndex-1));};
+            var ss=document.getElementById(s[v]);
+            with(ss){
+                length = 0;
+                options[0]=new Option(opt0[v],opt0[v]);
+                if(v && document.getElementById(s[v-1]).selectedIndex>0 || !v)
+                {
+                    if(dsy.Exists(str)){
+                        ar = dsy.Items[str];
+                        for(i=0;i<ar.length;i++)options[length]=new Option(ar[i],ar[i]);
+                        if(v)options[1].selected = true;
+                    }
+                }
+                if(++v<s.length){change(v);}
+            }
+        }
+        var dsy = new Dsy();
+        dsy.add("0",["中国","韩国","日本","新加坡","马来西亚","菲律宾","沙特阿拉伯","朝鲜","越南","缅甸","德国","英国","法国","爱尔兰","波兰","西班牙","意大利","俄罗斯","荷兰","美国","加拿大","巴西","阿根廷","新西兰","澳大利亚","印度","埃及"]);
+
+
+        //-->
+    </SCRIPT>
+    <SCRIPT LANGUAGE = JavaScript>
+        <!--
+        //** Power by Fason(2004-3-11)
+        //** Email:fason_pfx@hotmail.com
+        var s=["s1","s2","s3"];
+        var opt0 = ["国家","省份、州","地级市、县"];
+        function setup()
+        {
+            for(i=0;i<s.length-1;i++)
+                document.getElementById(s[i]).onchange=new Function("change("+(i+1)+")");
+            change(0);
+        }
+        //-->
+    </SCRIPT>
+</head>
+<body bgcolor="#E0E0E0" onLoad="setup()" style="margin:0">
+<form name="frm">
+    <select id="s1"><option>国家</option></select>
+    <select id="s2"><option>省份、州</option></select>
+    <select id="s3"><option>地级市、县</option></select>
+</form>
+</body>
+</html>

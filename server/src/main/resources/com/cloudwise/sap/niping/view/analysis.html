@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>SAP Network Monitoring</title>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css" />
+	<link rel="stylesheet" href="/vendor/bootstrap/bootstrap-responsive.min.css" />
+	<!--<link href="https://cdn.bootcss.com/bootstrap-modal/2.2.6/css/bootstrap-modal.min.css" rel="stylesheet">-->
+	<!--<link href="https://cdn.bootcss.com/bootstrap-modal/2.2.6/css/bootstrap-modal-bs3patch.min.css" rel="stylesheet">-->
+	<link rel="stylesheet" href="/vendor/bootstrap/bootstrap-multiselect.css">
+	<!--<link rel="stylesheet" href="./static/css/uniform.css" />-->
+	<!--<link rel="stylesheet" href="./vendor/bootstrap/select2.css" />-->
+	<!--<link rel="stylesheet" href="./vendor/bootstrap/bootstrap-switch.min.css" />-->
+	<link rel="stylesheet" href="/static/css/matrix-style.css" />
+	<link rel="stylesheet" href="/static/css/matrix-media.css" />
+	<link href="/vendor/font-awesome/css/font-awesome.css" rel="stylesheet" />
+
+</head>
+<body>
+
+<!--Header-part-->
+<div id="header">
+	<div class="logo">
+		<h1>
+			<a href="index.html">SAP Network Monitoring</a>
+		</h1>
+	</div>
+
+	<!--top-Header-menu-->
+	<div id="user-nav" class="navbar navbar-inverse">
+		<ul class="nav">
+			<li class="">
+				<a title="" href="login.html">
+					<i class="icon icon-share-alt"></i>
+					<span class="text">退出</span>
+				</a>
+			</li>
+		</ul>
+	</div>
+</div>
+<!--close-Header-part-->
+
+<!--sidebar-menu-->
+
+<div id="sidebar">
+	<a href="#" class="visible-phone"><i class="icon icon-th"></i>数据分析</a>
+	<ul>
+		<li><a href="index.html"><i class="icon icon-th"></i> <span>任务列表</span></a></li>
+		<li class="active"><a href="analysis.html"><i class="icon icon-file"></i> <span>数据分析</span></a> </li>
+		<li><a href="history.html"><i class="icon icon-list"></i> <span>历史记录</span></a> </li>
+		<li><a href="monitor.html"><i class="icon icon-barcode"></i> <span>监测点</span></a> </li>
+	</ul>
+</div>
+
+<div id="content">
+	<div id="content-header">
+		<div id="breadcrumb"> <a href="/" title="返回首页" class="tip-bottom"><i class="icon-home"></i> 首页</a> <a href="./analysis.html" class="current">数据分析</a> </div>
+		<!--<h1>监控任务列表</h1>-->
+	</div>
+	<div class="container-fluid">
+		<!--<hr>-->
+		<div class="panel-header">
+			<form class="form-inline" method="post" action="#">
+				<select name="taskList" id="taskList">
+					<option value=1>任务1</option>
+					<option value=2>任务2</option>
+					<option value=3>任务3</option>
+					<option value=4>任务4</option>
+					<option value=5>任务5</option>
+					<option value=6>任务6</option>
+					<option value=7>任务7</option>
+				</select>
+
+				<select name="interval" id="interval">
+					<option value=1>最新状态</option>
+					<option value=2>30分钟</option>
+					<option value=3>1小时</option>
+					<option value=4>6小时</option>
+					<option value=5>12小时</option>
+					<option value=6>1天</option>
+					<option value=7>2天</option>
+					<option value=7>1周</option>
+				</select>
+			</form>
+		</div>
+		<div class="row-fluid">
+			<div class="span12 dataList">
+				<div class="widget-box fullWidth">
+					<div class="widget-content nopadding">
+						<table class="table table-bordered data-table">
+							<thead>
+							<tr>
+								<th>监测点</th>
+								<th>IP地址</th>
+								<th>响应时间(ms)</th>
+								<th>可用性</th>
+								<th>带宽(KB/S)</th>
+								<th>国家</th>
+								<th>省份</th>
+								<th>城市</th>
+								<th>运营商</th>
+								<th>历史数据</th>
+							</tr>
+							<!--<tr>
+                              <th>bandwidthB</th>
+                              <th>bandwidthL</th>
+                              <th>idleTimeoutD</th>
+                              <th>roundTripTimeB</th>
+                              <th>roundTripTimeL</th>
+                              <th>router</th>
+                              <th>stabilityB</th>
+                              <th>stabilityD</th>
+                              <th>stabilityL</th>
+                            </tr>-->
+							</thead>
+							<tbody>
+							<tr class="gradeX">
+								<td>监测点1</td>
+								<td>10.0.0.1</td>
+								<td>320</td>
+								<td class="green">
+									可用
+								</td>
+								<td>5555</td>
+								<td>中国</td>
+								<td>山东</td>
+								<td>潍坊</td>
+								<td>中国电信</td>
+								<td class="operate">
+									<a alt="" href="./history.html"><i class="icon-2x icon-zoom-in"></i>查看</a>
+								</td>
+							</tr>
+							<tr class="gradeX">
+								<td>监测点1</td>
+								<td>10.0.0.1</td>
+								<td>320</td>
+								<td class="red">
+									不可用
+								</td>
+								<td>5555</td>
+								<td>中国</td>
+								<td>山东</td>
+								<td>潍坊</td>
+								<td>中国电信</td>
+								<td class="operate">
+									<a alt="" href="./history.html"><i class="icon-2x icon-zoom-in"></i>查看</a>
+								</td>
+							</tr>
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<!--Footer-part-->
+<div class="row-fluid">
+	<div id="footer" class="span12"> Published By <a href="http://www.cloudwise.com/" target="_blank">云智慧</a></div>
+</div>
+<!--end-Footer-part-->
+<script src="/static/js/config.js"></script>
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script src="/vendor/jquery/jquery.ui.custom.js"></script>
+<script src="/vendor/bootstrap/bootstrap.min.js"></script>
+<script src="/vendor/bootstrap/bootstrap-multiselect.js"></script>
+<!--<script src="https://cdn.bootcss.com/bootstrap-modal/2.2.6/js/bootstrap-modal.min.js" ></script>-->
+<!--<script src="https://cdn.bootcss.com/bootstrap-modal/2.2.6/js/bootstrap-modalmanager.min.js"></script>-->
+<!--<script src="./vendor/bootstrap/bootstrap-switch.min.js"></script>-->
+<script src="/vendor/jquery/jquery.uniform.js"></script>
+<!--<script src="./vendor/jquery/select2.min.js"></script>-->
+<script src="/vendor/jquery/jquery.dataTables.min.js"></script>
+<script src="/static/js/matrix.js"></script>
+<script src="/static/js/matrix.tables.js"></script>
+<!--引入异步请求类包-->
+<script src="/static/js/rest.js"></script>
+<script type="text/javascript">
+	$(function(){
+		/*
+		 response 格式:
+		 code:"success"
+		 data:{page: 1, pageSize: 10, pageCount: 0, totalCount: 0, list: []}
+		 msg:"operate success."
+		 */
+
+	});
+</script>
+</body>
+</html>
