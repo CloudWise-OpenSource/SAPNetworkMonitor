@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.dropwizard.Application;
+import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.auth.AuthFilter;
 import io.dropwizard.auth.PolymorphicAuthDynamicFeature;
 import io.dropwizard.auth.PolymorphicAuthValueFactoryProvider;
@@ -16,6 +17,8 @@ import io.dropwizard.jdbi.DBIFactory;
 import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.dropwizard.views.ViewBundle;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -38,7 +41,8 @@ public class NiPingMonitorApplication extends Application<ServerConfiguration> {
         NiPingServiceBinder niPingServiceBinder = new NiPingServiceBinder(jdbi, objectMapper, sapConfiguration);
 
         ServiceLocator serviceLocator = ServiceLocatorUtilities.bind(niPingServiceBinder);
-        SapBasicAuthenticator sapBasicAuthenticator = ServiceLocatorUtilities.getService(serviceLocator, SapBasicAuthenticator.class.getName());
+        SapBasicAuthenticator sapBasicAuthenticator = ServiceLocatorUtilities.getService(serviceLocator, SapBasicAuthenticator.class
+                .getName());
         SapOAuthenticator sapOAuthenticator = ServiceLocatorUtilities.getService(serviceLocator, SapOAuthenticator.class.getName());
 
         final BasicCredentialAuthFilter basicAuthFilter = new BasicCredentialAuthFilter.Builder<BasicAuthUser>()
@@ -49,12 +53,14 @@ public class NiPingMonitorApplication extends Application<ServerConfiguration> {
                 .setPrefix("Bearer")
                 .buildAuthFilter();
 
-        final PolymorphicAuthDynamicFeature feature = new PolymorphicAuthDynamicFeature<UserPrincipal>(ImmutableMap.of(BasicAuthUser.class, basicAuthFilter, OAuthUser.class, oAuthFilter));
-        final AbstractBinder binder = new PolymorphicAuthValueFactoryProvider.Binder<>(
-                ImmutableSet.of(BasicAuthUser.class, OAuthUser.class));
+        final PolymorphicAuthDynamicFeature feature = new PolymorphicAuthDynamicFeature<UserPrincipal>(ImmutableMap.of(BasicAuthUser
+                .class, basicAuthFilter, OAuthUser.class, oAuthFilter));
+        final AbstractBinder binder = new PolymorphicAuthValueFactoryProvider.Binder<>(ImmutableSet.of(BasicAuthUser.class, OAuthUser
+                .class));
 
         environment.jersey().register(feature);
         environment.jersey().register(binder);
+        environment.servlets().setSessionHandler(new SessionHandler());
 
         environment.jersey().register(niPingServiceBinder);
         environment.jersey().packages("com.cloudwise.sap.niping");
@@ -62,11 +68,17 @@ public class NiPingMonitorApplication extends Application<ServerConfiguration> {
 
     @Override
     public void initialize(Bootstrap<ServerConfiguration> bootstrap) {
+
         bootstrap.addBundle(new MigrationsBundle<ServerConfiguration>() {
             @Override
             public DataSourceFactory getDataSourceFactory(ServerConfiguration configuration) {
                 return configuration.getDataSourceFactory();
             }
         });
+
+        bootstrap.addBundle(new AssetsBundle("/com/cloudwise/sap/niping/view/static", "/static", null, "static"));
+        bootstrap.addBundle(new AssetsBundle("/com/cloudwise/sap/niping/view/vendor", "/vendor", null, "vendor"));
+        bootstrap.addBundle(new ViewBundle<ServerConfiguration>());
+
     }
 }

@@ -100,7 +100,7 @@ public class TaskService {
                 }
                 String stopId = subtract(runningTaskIds, taskIds);
                 if (StringUtils.isNotEmpty(stopId)) {
-                    task = Task.builder().taskId(stopId).build();
+                    task = Task.builder().monitorId(monitorId).taskId(stopId).build();
                     task.setAction(MonitorJob.Action.STOP);
                 }
             }
@@ -208,6 +208,7 @@ public class TaskService {
 
     public void assignTask(List<String> monitorIds, String taskId) throws NiPingException {
         try {
+            //validate has assigned TODO
             monitorTaskDao.insertMonitorTask(monitorIds, taskId);
             log.debug("task {} has been assigned to monitors {}", taskId, Arrays.toString(monitorIds.toArray(new String[]{})));
         }
@@ -239,5 +240,18 @@ public class TaskService {
             log.error("save monitor niping result {} error: {}", monitorNiPingResult, ExceptionUtils.getMessage(e));
             throw new NiPingException(DBError);
         }
+    }
+
+    public Optional<List<Task>> listTasks(String accountId) throws NiPingException {
+        Optional<List<Task>> tasks = Optional.empty();
+        try {
+            tasks = Optional.ofNullable(taskDao.selectByAccountIds(accountId, Task.Status.enable.getStatus()));
+            log.debug("select account {} tasks {}", accountId, Arrays.toString(tasks.get().toArray(new Task[]{})));
+        }
+        catch (DBIException e) {
+            log.error("list tasks error: {}", ExceptionUtils.getMessage(e));
+            throw new NiPingException(DBError);
+        }
+        return tasks;
     }
 }

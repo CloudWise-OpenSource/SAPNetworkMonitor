@@ -44,4 +44,9 @@ public interface TaskDao {
     @SqlQuery("SELECT SNM_TASK.TASK_ID AS taskId FROM SNM_TASK INNER JOIN SNM_MONITOR_TASK ON SNM_MONITOR_TASK.TASK_ID = SNM_TASK.TASK_ID " +
             " WHERE SNM_MONITOR_TASK.MONITOR_ID = :monitorId AND SNM_MONITOR_TASK.TASK_ID IN (<runningTaskIds>) AND STATUS = :taskEnableStatus")
     List<String> getAllTaskIdsInRunningTaskIds(@Bind("monitorId") String monitorId, @BindIn("runningTaskIds") List<String> runningTaskIds, @Bind("taskEnableStatus") int taskEnableStatus) ;
+
+    @SqlQuery("SELECT SNM_TASK.TASK_ID, MONITOR_ID, ACCOUNT_ID, NAME, TASK_INTERVAL AS 'INTERVAL', CONFIG_JSON, STATUS, CREATION_TIME, MODIFIED_TIME FROM SNM_TASK LEFT JOIN SNM_MONITOR_TASK ON SNM_MONITOR_TASK.TASK_ID = SNM_TASK.TASK_ID " +
+            " WHERE ACCOUNT_ID = :accountId AND STATUS = :taskEnableStatus ORDER BY TASK_ID")
+    @RegisterMapper(TaskMapper.class)
+    List<Task> selectByAccountIds(@Bind("accountId") String accountId, @Bind("taskEnableStatus") int taskEnableStatus);
 }

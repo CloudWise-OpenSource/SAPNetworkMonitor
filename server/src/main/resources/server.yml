@@ -36,6 +36,10 @@ logging:
       timeZone: "Asia/Shanghai"
       maxFileSize: 20MB
 
+views:
+  .mustache:
+    cache: false
+
 sap:
   monitor:
     #unit: second
