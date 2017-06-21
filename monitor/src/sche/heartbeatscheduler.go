@@ -18,7 +18,7 @@ var (
 )
 
 func HeartBeat(url string,nipingtInterval int64,serverInfo map[string] string,monitorInfo map[string] string,osm map[string] string){
-	log.Println("start heartbeat")
+	log.Println("Start Heartbeat")
 	nipingT,errFlag := cli.GetNipingT(serverInfo["nipingPath"],nipingtInterval)
 	heartbeats := models.HeartBeats{
 		Ip:			monitorInfo["ip"],

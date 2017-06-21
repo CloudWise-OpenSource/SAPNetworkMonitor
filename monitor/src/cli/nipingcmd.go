@@ -17,13 +17,7 @@ var (
 	lastNipingT int64
 	command string
 	method string
-	monitorResult models.MonitorResult
 )
-
-func init() {
-	monitorResult = models.MonitorResult{"","",0,"","","",
-										 "",0, "","","",0}
-}
 
 func GetNipingT(nipingPath string,nipingtInterval int64) (string,bool) {
 	if runtime.GOOS == "windows" {
@@ -52,6 +46,7 @@ func GetNipingT(nipingPath string,nipingtInterval int64) (string,bool) {
 
 func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_args int, l_args int,
 	d_args int,executeid int, channel chan models.MonitorResult,osm map[string] string) {
+	monitorResult := new(models.MonitorResult)
 	startTime := time.Now().Unix()
 	cmd := exec.Command(osm["command"], osm["method"], nipingPath,"-c","-H",router,"-B",strconv.Itoa(b_args),
 		"-L", strconv.Itoa(l_args), "-D", strconv.Itoa(d_args))
@@ -82,9 +77,11 @@ func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_arg
 				}
 			}
 		}
-		monitorResult = models.MonitorResult{"","",endTime,monitorResult.Errmsg,monitorResult.Errno,
-											 "","", startTime,taskId,"","",typeId}
-		channel <- monitorResult
+		monitorResult.StartTime = startTime
+		monitorResult.EndTime = endTime
+		monitorResult.TaskId = taskId
+		monitorResult.Type = typeId
+		channel <- *monitorResult
 	}
 	bytes, err := ioutil.ReadAll(stdout)
 	if err != nil {
@@ -113,8 +110,6 @@ func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_arg
 				}
 			}
 		}
-		monitorResult = models.MonitorResult{monitorResult.Av2,monitorResult.Avg,endTime,"","",
-											 monitorResult.Max,monitorResult.Min, startTime,taskId,"","",0}
 		break
 	case 1:
 		log.Println("case 1")
@@ -130,8 +125,6 @@ func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_arg
 				}
 			}
 		}
-		monitorResult  = models.MonitorResult{"","",0,"","",
-											  "","", 0,taskId,monitorResult.Tr,monitorResult.Tr2,0}
 		break
 	default:
 		log.Println("case others")
@@ -159,11 +152,11 @@ func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_arg
 				}
 			}
 		}
-		monitorResult  = models.MonitorResult{monitorResult.Av2,monitorResult.Avg,endTime,"","",
-											  monitorResult.Max,monitorResult.Min, startTime,taskId,monitorResult.Tr,monitorResult.Tr2,typeId}
 		break
 	}
-
-	fmt.Println(monitorResult)
-	channel <- monitorResult
+	monitorResult.StartTime = startTime
+	monitorResult.EndTime = endTime
+	monitorResult.TaskId = taskId
+	monitorResult.Type = typeId
+	channel <- *monitorResult
 }

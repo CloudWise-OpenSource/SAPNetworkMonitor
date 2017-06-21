@@ -44,7 +44,7 @@ func DelayAndBrandwidth(url string,monitorJob models.MonitorJob,serverInfo map[s
 		monitorResult_a := <- channel_result1
 		monitorResult_b := <- channel_result2
 
-		monitorResult = models.MonitorResult{monitorResult_a.Av2,monitorResult_a.Avg,monitorResult_a.EndTime,monitorResult_a.Errmsg,
+		monitorResult := models.MonitorResult{monitorResult_a.Av2,monitorResult_a.Avg,monitorResult_a.EndTime,monitorResult_a.Errmsg,
 											 monitorResult_a.Errno,monitorResult_a.Max,monitorResult_a.Min,monitorResult_a.StartTime,monitorResult_a.TaskId,
 											 monitorResult_b.Tr,monitorResult_b.Tr2,0}
 		monitorResultJson, _ := json.Marshal(monitorResult)
@@ -62,8 +62,6 @@ func DelayAndBrandwidth(url string,monitorJob models.MonitorJob,serverInfo map[s
 		}else {
 			fmt.Println(resp)
 		}
-	}else {
-
 	}
 }
 
@@ -82,7 +80,7 @@ func StabilityTask(url string,monitorJob models.MonitorJob,serverInfo map[string
 			if list.Len() != 0 {
 				DeleteNipingPid(list,pid)
 			}
-			monitorResult = models.MonitorResult{monitorResult_stab.Av2,monitorResult_stab.Avg,monitorResult_stab.EndTime,monitorResult_stab.Errmsg,
+			monitorResult := models.MonitorResult{monitorResult_stab.Av2,monitorResult_stab.Avg,monitorResult_stab.EndTime,monitorResult_stab.Errmsg,
 												 monitorResult_stab.Errno,monitorResult_stab.Max,monitorResult_stab.Min,monitorResult_stab.StartTime,monitorResult_stab.TaskId,
 												 monitorResult_stab.Tr,monitorResult_stab.Tr2,1}
 			fmt.Println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -111,7 +109,7 @@ func StabilityTask(url string,monitorJob models.MonitorJob,serverInfo map[string
 func TimeoutTask(url string,monitorJob models.MonitorJob,serverInfo map[string] string,
 	taskMap map[string] *list.List,osm map[string] string){
 	if timeoutFlag == true{
-		log.Println("tart TimeoutTask")
+		log.Println("Start TimeoutTask")
 		if _,ok := taskMap[monitorJob.Data.TaskId];ok {
 			timeoutFlag = false
 			channel_result := make(chan models.MonitorResult,1)
@@ -122,7 +120,7 @@ func TimeoutTask(url string,monitorJob models.MonitorJob,serverInfo map[string] 
 			if list.Len() != 0 {
 				DeleteNipingPid(list,pid)
 			}
-			monitorResult = models.MonitorResult{monitorResult_idle.Av2,monitorResult_idle.Avg,monitorResult_idle.EndTime,monitorResult_idle.Errmsg,
+			monitorResult := models.MonitorResult{monitorResult_idle.Av2,monitorResult_idle.Avg,monitorResult_idle.EndTime,monitorResult_idle.Errmsg,
 												 monitorResult_idle.Errno,monitorResult_idle.Max,monitorResult_idle.Min,monitorResult_idle.StartTime,monitorResult_idle.TaskId,
 												 monitorResult_idle.Tr,monitorResult_idle.Tr2,2}
 			fmt.Println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
