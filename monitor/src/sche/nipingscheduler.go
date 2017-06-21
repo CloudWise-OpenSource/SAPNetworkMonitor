@@ -21,23 +21,24 @@ func StartJob(monitorJob models.MonitorJob,serverInfo map[string] string,monitor
 	fmt.Println("111111111111==============================================================")
 	cronJob[monitorJob.Data.TaskId] = new(Cron)
 	go func(){
+		fmt.Println(">>>>>>>>>>>")
 		s := gocron.NewScheduler()
 		cronJob[monitorJob.Data.TaskId].schedulers = append(cronJob[monitorJob.Data.TaskId].schedulers,s)
-		s.Every(uint64(5)).Seconds().Do(cli.DelayAndBrandwidth,url,monitorJob,osm)
+		s.Every(uint64(5)).Seconds().Do(cli.DelayAndBrandwidth,url,monitorJob,serverInfo,taskMap,osm)
 		<- s.Start()
 	}()
 
 	go func() {
 		t := gocron.NewScheduler()
 		cronJob[monitorJob.Data.TaskId].schedulers = append(cronJob[monitorJob.Data.TaskId].schedulers,t)
-		t.Every(uint64(5)).Seconds().Do(cli.StabilityTask,url,monitorJob,osm)
+		t.Every(uint64(5)).Seconds().Do(cli.StabilityTask,url,monitorJob,serverInfo,taskMap,osm)
 		<- t.Start()
 	}()
 
 	go func() {
 		u := gocron.NewScheduler()
 		cronJob[monitorJob.Data.TaskId].schedulers = append(cronJob[monitorJob.Data.TaskId].schedulers,u)
-		u.Every(uint64(5)).Seconds().Do(cli.TimeoutTask,url,monitorJob,osm)
+		u.Every(uint64(5)).Seconds().Do(cli.TimeoutTask,url,monitorJob,serverInfo,taskMap,osm)
 		<- u.Start()
 	}()
 
