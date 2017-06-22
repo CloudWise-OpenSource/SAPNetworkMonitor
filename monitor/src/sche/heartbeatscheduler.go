@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"container/list"
 	"SAPNetworkMonitor/monitor/src/cli"
 	"net/http"
 	"bytes"
@@ -14,10 +13,10 @@ import (
 )
 
 var (
-	taskMap = make(map[string] *list.List)
+	taskMap = make(map[string] string)
 )
 
-func HeartBeat(url string,nipingtInterval int64,serverInfo map[string] string,monitorInfo map[string] string,osm map[string] string){
+func HeartBeat(url string,nipingtInterval int64,serverInfo map[string] string,monitorInfo map[string] string){
 	log.Println("Start Heartbeat")
 	nipingT,errFlag := cli.GetNipingT(serverInfo["nipingPath"],nipingtInterval)
 	heartbeats := models.HeartBeats{
@@ -68,14 +67,14 @@ func HeartBeat(url string,nipingtInterval int64,serverInfo map[string] string,mo
 			break
 		case 1:
 			log.Print("start task1")
-			taskMap[monitorJob.Data.TaskId] = list.New()
-			StartJob(*monitorJob,serverInfo,monitorInfo,osm)
+			taskMap[monitorJob.Data.TaskId] = ""
+			StartJob(*monitorJob,serverInfo,monitorInfo,taskMap)
 			break
 		case 2:
 			log.Print("start task2")
 			StopTask(monitorJob.Data.TaskId, taskMap)
 			log.Println("stop task:" +  monitorJob.Data.TaskId)
-			StartJob(*monitorJob,serverInfo,monitorInfo,osm)
+			StartJob(*monitorJob,serverInfo,monitorInfo,taskMap)
 			break
 		}
 	}

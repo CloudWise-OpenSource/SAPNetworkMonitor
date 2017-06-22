@@ -4,34 +4,24 @@ import (
 	"time"
 	"os/exec"
 	"log"
-	"runtime"
 	"strconv"
 	"fmt"
 	"io/ioutil"
 	"strings"
 	"SAPNetworkMonitor/monitor/src/models"
 	"SAPNetworkMonitor/monitor/src/cfg"
+	"runtime"
 )
 
 var (
 	lastNipingT int64
-	command string
-	method string
 )
 
 func GetNipingT(nipingPath string,nipingtInterval int64) (string,bool) {
-	if runtime.GOOS == "windows" {
-		command = "cmd"
-		method = "/C"
-	}else {
-		command = "/bin/sh"
-		method = "-c"
-	}
-
 	nipingT := ""
 	_,serverInfo := cfg.ReadConfig()
 	if time.Now().Unix() - lastNipingT > nipingtInterval {
-		cmd,err := exec.Command(command,method,nipingPath,"-t").Output()
+		cmd,err := exec.Command(nipingPath,"-t").Output()
 		if err != nil {
 			nipingT := "Configuration Present Error: " + "nipingPath: " + serverInfo["nipingPath"] +
 				" heartbeatServerUrl: " + serverInfo["heartbeatServerUrl"] + " dataServerUrl: " + serverInfo["dataServerUrl"]
@@ -45,12 +35,10 @@ func GetNipingT(nipingPath string,nipingtInterval int64) (string,bool) {
 }
 
 func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_args int, l_args int,
-	d_args int,executeid int, channel chan models.MonitorResult,osm map[string] string) {
+	d_args int,executeid int, channel chan models.MonitorResult) {
 	monitorResult := new(models.MonitorResult)
 	startTime := time.Now().Unix()
-	cmd := exec.Command(osm["command"], osm["method"], nipingPath,"-c","-H",router,"-B",strconv.Itoa(b_args),
-		"-L", strconv.Itoa(l_args), "-D", strconv.Itoa(d_args))
-
+	cmd := exec.Command(nipingPath,"-c","-H",router,"-B",strconv.Itoa(b_args),"-L",strconv.Itoa(l_args),"-D",strconv.Itoa(d_args))
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		fmt.Println("StdoutPipe: " + err.Error())
@@ -68,12 +56,29 @@ func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_arg
 	}
 	if len(bytesErr) != 0 {
 		endTime := time.Now().Unix()
-		errArray := strings.Split(string(bytesErr),"\r")
-		for i:=0;i< len(errArray);i++ {
-			if len(strings.Fields(errArray[i])) == 3 {
-				if strings.Fields(errArray[i])[1] == "ERRNO" {
-					monitorResult.Errno = strings.Fields(errArray[i])[2]
-					monitorResult.Errmsg = string(bytesErr)
+		if runtime.GOOS =="windows" {
+			errArray := strings.Split(string(bytesErr),"\r")
+			for i:=0;i< len(errArray);i++ {
+				if len(strings.Fields(errArray[i])) == 3 {
+					if strings.Fields(errArray[i])[1] == "ERRNO" {
+						monitorResult.Errno = strings.Fields(errArray[i])[2]
+						monitorResult.Errmsg = string(bytesErr)
+					}
+				}
+			}
+		}else {
+			errArray := []string{}
+			if runtime.GOOS == "windows" {
+				errArray = strings.Split(string(bytesErr),"\r")
+			}else {
+				errArray = strings.Split(string(bytesErr),"\n")
+			}
+			for i:=0;i< len(errArray);i++ {
+				if len(strings.Fields(errArray[i])) == 3 {
+					if strings.Fields(errArray[i])[1] == "ERRNO" {
+						monitorResult.Errno = strings.Fields(errArray[i])[2]
+						monitorResult.Errmsg = string(bytesErr)
+					}
 				}
 			}
 		}
@@ -88,7 +93,12 @@ func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_arg
 		fmt.Println("ReadAll stdout: ", err.Error())
 	}
 	endTime := time.Now().Unix()
-	array := strings.Split(string(bytes[:]),"\r")
+	array := []string{}
+	if runtime.GOOS == "windows" {
+		array = strings.Split(string(bytes[:]),"\r")
+	}else {
+		array = strings.Split(string(bytes[:]),"\n")
+	}
 	switch executeid {
 	case 0:
 		log.Println("case 0")
