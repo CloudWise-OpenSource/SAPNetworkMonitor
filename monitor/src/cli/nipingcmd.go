@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"strings"
 	"SAPNetworkMonitor/monitor/src/models"
-	"SAPNetworkMonitor/monitor/src/cfg"
 	"runtime"
 )
 
@@ -17,11 +16,10 @@ var (
 	lastNipingT int64
 )
 
-func GetNipingT(nipingPath string,nipingtInterval int64) (string,bool) {
+func GetNipingT(serverInfo map[string] string,nipingtInterval int64) (string,bool) {
 	nipingT := ""
-	_,serverInfo := cfg.ReadConfig()
 	if time.Now().Unix() - lastNipingT > nipingtInterval {
-		cmd,err := exec.Command(nipingPath,"-t").Output()
+		cmd,err := exec.Command(serverInfo["nipingPath"],"-t").Output()
 		if err != nil {
 			nipingT := "Configuration Present Error: " + "nipingPath: " + serverInfo["nipingPath"] +
 				" heartbeatServerUrl: " + serverInfo["heartbeatServerUrl"] + " dataServerUrl: " + serverInfo["dataServerUrl"]

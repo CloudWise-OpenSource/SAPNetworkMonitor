@@ -18,7 +18,7 @@ func PathExists(path string) (bool, error) {
 
 func GetMonitorId() string {
 	uuid := uuid.Rand()
-	fileName := "monitorid.dat"
+	fileName := "./.sapmonitorid"
 	existFlag,_ := PathExists(fileName)
 	if existFlag {
 		f, _ := os.Open(fileName)

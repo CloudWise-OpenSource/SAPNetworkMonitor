@@ -18,7 +18,7 @@ var (
 
 func HeartBeat(url string,nipingtInterval int64,serverInfo map[string] string,monitorInfo map[string] string){
 	log.Println("Start Heartbeat")
-	nipingT,errFlag := cli.GetNipingT(serverInfo["nipingPath"],nipingtInterval)
+	nipingT,errFlag := cli.GetNipingT(serverInfo,nipingtInterval)
 	heartbeats := models.HeartBeats{
 		Ip:			monitorInfo["ip"],
 		Name:		monitorInfo["name"],
@@ -37,7 +37,7 @@ func HeartBeat(url string,nipingtInterval int64,serverInfo map[string] string,mo
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
-	req.Header.Set("Authorization","Bearer Zb3cVv0qzeNhYZwYbdC")
+	req.Header.Set("Authorization","Bearer " +  monitorInfo["accessToken"])
 	req.Header.Set("Content-Type","application/json")
 	fmt.Println(req)
 	client := &http.Client{}

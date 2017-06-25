@@ -4,12 +4,15 @@ import (
 	"log"
 	"github.com/larspensjo/config"
 	"flag"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 var (
-	configFile = flag.String("configfile", "monitor/config.ini", "General configuration file")
 	monitorInfo = make(map[string] string)
 	serverInfo = make(map[string] string)
+
 )
 
 type MonitorInfo struct {
@@ -32,9 +35,18 @@ type ServerInfo struct {
 	DataServerUrl		string
 }
 
-func ReadConfig() (map1 map[string] string,map2 map[string] string) {
-	cfg, err := config.ReadDefault(*configFile)
+func getCurrentDirectory() string {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	}
+	return strings.Replace(dir, "\\", "/", -1)
+}
 
+func ReadConfig()(map1 map[string] string,map2 map[string] string) {
+	path := getCurrentDirectory()
+	configFile := flag.String("configfile", path+ "/config.ini", "General configuration file")
+	cfg, err := config.ReadDefault(*configFile)
 	if err != nil {
 		log.Fatalf("Fail to find", *configFile, err)
 	}
