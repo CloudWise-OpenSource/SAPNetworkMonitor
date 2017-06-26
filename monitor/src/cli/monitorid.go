@@ -3,6 +3,8 @@ import (
 	"github.com/snluu/uuid"
 	"os"
 	"io/ioutil"
+	"flag"
+	"SAPNetworkMonitor/monitor/src/cfg"
 )
 
 func PathExists(path string) (bool, error) {
@@ -18,14 +20,15 @@ func PathExists(path string) (bool, error) {
 
 func GetMonitorId() string {
 	uuid := uuid.Rand()
-	fileName := "./.sapmonitorid"
-	existFlag,_ := PathExists(fileName)
+	path := cfg.GetCurrentDirectory()
+	fileName := flag.String("log", path + "/.sapmonitorid", "mointorid file name")
+	existFlag,_ := PathExists(*fileName)
 	if existFlag {
-		f, _ := os.Open(fileName)
+		f, _ := os.Open(*fileName)
 		monitorId,_ := ioutil.ReadAll(f)
 		return string(monitorId)
 	}else {
-		dstFile,_ := os.Create(fileName)
+		dstFile,_ := os.Create(*fileName)
 		defer dstFile.Close()
 		s:= uuid.Hex()
 		dstFile.WriteString(s)

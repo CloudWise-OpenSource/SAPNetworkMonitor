@@ -18,6 +18,7 @@ var (
 
 func HeartBeat(url string,nipingtInterval int64,serverInfo map[string] string,monitorInfo map[string] string){
 	log.Println("Start Heartbeat")
+
 	nipingT,errFlag := cli.GetNipingT(serverInfo,nipingtInterval)
 	heartbeats := models.HeartBeats{
 		Ip:			monitorInfo["ip"],
@@ -27,7 +28,7 @@ func HeartBeat(url string,nipingtInterval int64,serverInfo map[string] string,mo
 		Province:	monitorInfo["province"],
 		City:		monitorInfo["city"],
 		Isp:		monitorInfo["isp"],
-		MonitorId:	monitorInfo["monitorId"],
+		MonitorId:	cli.GetMonitorId(),
 		NipingT:	nipingT,
 		RunningTaskIds:	GetTaskIds(),
 	}
@@ -46,34 +47,32 @@ func HeartBeat(url string,nipingtInterval int64,serverInfo map[string] string,mo
 		oss.Exit(1)
 	}
 	if err1 != nil {
-		log.Println("cannot get the response")
+		log.Println("Cannot Get the Response")
 		gocron.Clear()
 		oss.Exit(1)
 	}
-	log.Println("received response")
+	log.Println("Received Response")
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(resp.Body)
 	s := buf.String()
 	json.Unmarshal([]byte(s), &monitorJob)
 
-	fmt.Println("###################" + s)
-	fmt.Println("&&&&&&&&&&&    " + monitorJob.Data.MonitorId)
 	if monitorJob.Data.MonitorId == monitorInfo["monitorId"] {
 		switch monitorJob.Data.ActionType {
 		case 0:
-			log.Print("start task0")
+			log.Print("Start Task0")
 			StopTask(monitorJob.Data.TaskId, taskMap)
-			log.Println("stop task:" +  monitorJob.Data.TaskId)
+			log.Println("Stop Task:" +  monitorJob.Data.TaskId)
 			break
 		case 1:
-			log.Print("start task1")
+			log.Print("Start Task1")
 			taskMap[monitorJob.Data.TaskId] = ""
 			StartJob(*monitorJob,serverInfo,monitorInfo,taskMap)
 			break
 		case 2:
-			log.Print("start task2")
+			log.Print("Start Task2")
 			StopTask(monitorJob.Data.TaskId, taskMap)
-			log.Println("stop task:" +  monitorJob.Data.TaskId)
+			log.Println("Stop Task:" +  monitorJob.Data.TaskId)
 			StartJob(*monitorJob,serverInfo,monitorInfo,taskMap)
 			break
 		}

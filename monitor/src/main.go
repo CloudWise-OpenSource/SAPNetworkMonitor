@@ -12,16 +12,15 @@ import (
 type program struct{}
 
 func (p *program) Start(s service.Service) error {
-	log.Println("开始服务")
+	log.Println("Start Service")
 	go p.run()
 	return nil
 }
 func (p *program) Stop(s service.Service) error {
-	log.Println("停止服务")
+	log.Println("Stop Service")
 	return nil
 }
 func (p *program) run() {
-	// 这里放置程序要执行的代码……
 	cfg.LogConfig()
 	monitorInfo,serverInfo := cfg.ReadConfig()
 	url := serverInfo["heartbeatServerUrl"] + "/api/monitors/monitor/" + monitorInfo["monitorId"] + "/heartbeat"
@@ -33,31 +32,26 @@ func (p *program) run() {
 }
 
 func main() {
-	//Call this function where the action happpens
-	//服务的配置信息
 	cfg := &service.Config{
-		Name:        "SAP",
-		DisplayName: "SAP",
-		Description: "This is an example Go service.",
+		Name:        "SAP-Monitor",
+		DisplayName: "SAP-Monitor",
+		Description: "This is an SAP-Monitor.",
 	}
-	// Interface 接口
 	prg := &program{}
-	// 构建服务对象
 	s, err := service.New(prg, cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// logger 用于记录系统日志
 	logger, err := s.Logger(nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	if len(os.Args) == 2 { //如果有命令则执行
+	if len(os.Args) == 2 {
 		err = service.Control(s, os.Args[1])
 		if err != nil {
 			log.Fatal(err)
 		}
-	} else { //否则说明是方法启动了
+	} else {
 		err = s.Run()
 		if err != nil {
 			logger.Error(err)

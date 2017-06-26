@@ -35,7 +35,7 @@ type ServerInfo struct {
 	DataServerUrl		string
 }
 
-func getCurrentDirectory() string {
+func GetCurrentDirectory() string {
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		log.Fatal(err)
@@ -44,7 +44,7 @@ func getCurrentDirectory() string {
 }
 
 func ReadConfig()(map1 map[string] string,map2 map[string] string) {
-	path := getCurrentDirectory()
+	path := GetCurrentDirectory()
 	configFile := flag.String("configfile", path+ "/config.ini", "General configuration file")
 	cfg, err := config.ReadDefault(*configFile)
 	if err != nil {

@@ -2,8 +2,6 @@ package cli
 
 import (
 	"log"
-	"fmt"
-	"strconv"
 	"encoding/json"
 	"net/http"
 	"bytes"
@@ -23,8 +21,6 @@ func init() {
 func DelayAndBrandwidth(url string,monitorJob models.MonitorJob,serverInfo map[string] string,
 	taskMap map[string] string) {
 	log.Println("Start DelayAndBrandwidth")
-	fmt.Println("@@@@@@@@@" + strconv.Itoa(monitorJob.Data.Interval))  // job没有变
-	fmt.Println("{{{{{{{{{{{" + strconv.Itoa(len(taskMap)))
 	if _,ok := taskMap[monitorJob.Data.TaskId];ok {
 		channel_result1 := make(chan models.MonitorResult,1)
 		channel_result2 := make(chan models.MonitorResult,1)
@@ -37,23 +33,23 @@ func DelayAndBrandwidth(url string,monitorJob models.MonitorJob,serverInfo map[s
 		monitorResult := models.MonitorResult{monitorResult_a.Av2,monitorResult_a.Avg,monitorResult_a.EndTime,monitorResult_a.Errmsg,
 											 monitorResult_a.Errno,monitorResult_a.Max,monitorResult_a.Min,monitorResult_a.StartTime,monitorResult_a.TaskId,
 											 monitorResult_b.Tr,monitorResult_b.Tr2,0}
+		log.Println(monitorResult)
 		monitorResultJson, _ := json.Marshal(monitorResult)
 		req, err := http.NewRequest("POST", url, bytes.NewBuffer(monitorResultJson))
-		fmt.Println(req)
 		if err != nil {
-			fmt.Println("Error:", err)
+			log.Println("Error:", err)
 		}
 		req.Header.Set("Authorization","Bearer Zb3cVv0qzeNhYZwYbdC")
 		req.Header.Set("Content-Type","application/json")
 		client := &http.Client{}
 		resp, err1 := client.Do(req)
 		if err1 != nil {
-			log.Println("annot get response")
+			log.Println("Cannot Get Response")
 		}else {
-			fmt.Println(resp)
+			log.Println(resp)
 		}
 	}else {
-		fmt.Println("没有没有没有！")
+		log.Println("No Valid ask")
 	}
 }
 
@@ -71,11 +67,11 @@ func StabilityTask(url string,monitorJob models.MonitorJob,serverInfo map[string
 			monitorResult := models.MonitorResult{monitorResult_stab.Av2,monitorResult_stab.Avg,monitorResult_stab.EndTime,monitorResult_stab.Errmsg,
 												 monitorResult_stab.Errno,monitorResult_stab.Max,monitorResult_stab.Min,monitorResult_stab.StartTime,monitorResult_stab.TaskId,
 												 monitorResult_stab.Tr,monitorResult_stab.Tr2,1}
-			fmt.Println(monitorResult)
+			log.Println(monitorResult)
 			monitorResultJson, _ := json.Marshal(monitorResult)
 			req, err := http.NewRequest("POST", url, bytes.NewBuffer(monitorResultJson))
 			if err != nil {
-				fmt.Println("Error:", err)
+				log.Println("Error:", err)
 			}
 			req.Header.Set("Authorization","Bearer Zb3cVv0qzeNhYZwYbdC")
 			req.Header.Set("Content-Type","application/json")
@@ -86,9 +82,11 @@ func StabilityTask(url string,monitorJob models.MonitorJob,serverInfo map[string
 				log.Println("cannot get response")
 			}else {
 				if resp.StatusCode == 200 {
-					fmt.Println(resp)
+					log.Println(resp)
 				}
 			}
+		}else {
+			log.Println("No Valid Task")
 		}
 	}
 }
@@ -106,11 +104,11 @@ func TimeoutTask(url string,monitorJob models.MonitorJob,serverInfo map[string] 
 			monitorResult := models.MonitorResult{monitorResult_idle.Av2,monitorResult_idle.Avg,monitorResult_idle.EndTime,monitorResult_idle.Errmsg,
 												 monitorResult_idle.Errno,monitorResult_idle.Max,monitorResult_idle.Min,monitorResult_idle.StartTime,monitorResult_idle.TaskId,
 												 monitorResult_idle.Tr,monitorResult_idle.Tr2,2}
-			fmt.Println(monitorResult)
+			log.Println(monitorResult)
 			monitorResultJson, _ := json.Marshal(monitorResult)
 			req, err := http.NewRequest("POST", url, bytes.NewBuffer(monitorResultJson))
 			if err != nil {
-				fmt.Println("Error:", err)
+				log.Println("Error:", err)
 			}
 			req.Header.Set("Authorization","Bearer Zb3cVv0qzeNhYZwYbdC")
 			req.Header.Set("Content-Type","application/json")
@@ -118,12 +116,14 @@ func TimeoutTask(url string,monitorJob models.MonitorJob,serverInfo map[string] 
 			timeoutFlag = true
 			resp, err1 := client.Do(req)
 			if err1 != nil {
-				log.Println("cannot get response")
+				log.Println("Cannot et response")
 			}else {
 				if resp.StatusCode == 200 {
-					fmt.Println(resp)
+					log.Println(resp)
 				}
 			}
+		}else {
+			log.Println("No Valid Task")
 		}
 	}
 }
