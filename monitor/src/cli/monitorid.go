@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"flag"
 	"SAPNetworkMonitor/monitor/src/cfg"
+	"log"
 )
 
 func PathExists(path string) (bool, error) {
@@ -20,8 +21,12 @@ func PathExists(path string) (bool, error) {
 
 func GetMonitorId() string {
 	uuid := uuid.Rand()
-	path := cfg.GetCurrentDirectory()
-	fileName := flag.String("log", path + "/.sapmonitorid", "mointorid file name")
+	path,err := cfg.Home()
+	if err != nil {
+		log.Println("Cannot Get Homepath")
+		return ""
+	}
+	fileName := flag.String("monitorid", path + "/.sapmonitorid", "mointorid file name")
 	existFlag,_ := PathExists(*fileName)
 	if existFlag {
 		f, _ := os.Open(*fileName)
@@ -35,3 +40,4 @@ func GetMonitorId() string {
 		return s
 	}
 }
+
