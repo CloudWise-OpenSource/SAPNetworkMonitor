@@ -3,7 +3,6 @@ package cfg
 import (
 	"log"
 	"github.com/larspensjo/config"
-	"flag"
 	"os"
 	"path/filepath"
 	"strings"
