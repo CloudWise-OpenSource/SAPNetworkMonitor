@@ -1,9 +1,8 @@
 package cli
 import (
-	"github.com/snluu/uuid"
+	"github.com/anarcher/shortuuid"
 	"os"
 	"io/ioutil"
-	"flag"
 	"SAPNetworkMonitor/monitor/src/cfg"
 	"log"
 )
@@ -20,13 +19,13 @@ func PathExists(path string) (bool, error) {
 }
 
 func GetMonitorId() string {
-	uuid := uuid.Rand()
+	uuid := shortuuid.New()
 	path,err := cfg.Home()
 	if err != nil {
 		log.Println("Cannot Get Homepath")
 		return ""
 	}
-	fileName := flag.String("monitorid", path + "/.sapmonitorid", "mointorid file name")
+	fileName := path + "/.sapmonitorid"
 	existFlag,_ := PathExists(*fileName)
 	if existFlag {
 		f, _ := os.Open(*fileName)
@@ -35,7 +34,7 @@ func GetMonitorId() string {
 	}else {
 		dstFile,_ := os.Create(*fileName)
 		defer dstFile.Close()
-		s:= uuid.Hex()
+		s:= uuid.String()
 		dstFile.WriteString(s)
 		return s
 	}
