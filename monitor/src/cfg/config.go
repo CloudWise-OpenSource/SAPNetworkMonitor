@@ -45,10 +45,10 @@ func GetCurrentDirectory() string {
 
 func ReadConfig()(map1 map[string] string,map2 map[string] string) {
 	path := GetCurrentDirectory()
-	configFile := flag.String("configfile", path+ "/config.ini", "General configuration file")
-	cfg, err := config.ReadDefault(*configFile)
+	configFile := path + "/config.ini"
+	cfg, err := config.ReadDefault(configFile)
 	if err != nil {
-		log.Fatalf("Fail to find", *configFile, err)
+		log.Fatalf("Fail to find", configFile, err)
 	}
 	if cfg.HasSection("monitorInfo") {
 		section, err := cfg.SectionOptions("monitorInfo")
