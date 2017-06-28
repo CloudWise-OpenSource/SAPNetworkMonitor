@@ -57,25 +57,23 @@ func HeartBeat(url string,nipingtInterval int64,serverInfo map[string] string,mo
 	s := buf.String()
 	json.Unmarshal([]byte(s), &monitorJob)
 
-	if monitorJob.Data.MonitorId == monitorInfo["monitorId"] {
-		switch monitorJob.Data.ActionType {
-		case 0:
-			log.Print("Start Task0")
-			StopTask(monitorJob.Data.TaskId, taskMap)
-			log.Println("Stop Task:" +  monitorJob.Data.TaskId)
-			break
-		case 1:
-			log.Print("Start Task1")
-			taskMap[monitorJob.Data.TaskId] = ""
-			StartJob(*monitorJob,serverInfo,monitorInfo,taskMap)
-			break
-		case 2:
-			log.Print("Start Task2")
-			StopTask(monitorJob.Data.TaskId, taskMap)
-			log.Println("Stop Task:" +  monitorJob.Data.TaskId)
-			StartJob(*monitorJob,serverInfo,monitorInfo,taskMap)
-			break
-		}
+	switch monitorJob.Data.ActionType {
+	case 0:
+		log.Print("Start Task0")
+		StopTask(monitorJob.Data.TaskId, taskMap)
+		log.Println("Stop Task:" +  monitorJob.Data.TaskId)
+		break
+	case 1:
+		log.Print("Start Task1")
+		taskMap[monitorJob.Data.TaskId] = ""
+		StartJob(*monitorJob,serverInfo,monitorInfo,taskMap)
+		break
+	case 2:
+		log.Print("Start Task2")
+		StopTask(monitorJob.Data.TaskId, taskMap)
+		log.Println("Stop Task:" +  monitorJob.Data.TaskId)
+		StartJob(*monitorJob,serverInfo,monitorInfo,taskMap)
+		break
 	}
 }
 
