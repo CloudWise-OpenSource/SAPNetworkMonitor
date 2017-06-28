@@ -26,13 +26,13 @@ func GetMonitorId() string {
 		return ""
 	}
 	fileName := path + "/.sapmonitorid"
-	existFlag,_ := PathExists(*fileName)
+	existFlag,_ := PathExists(fileName)
 	if existFlag {
-		f, _ := os.Open(*fileName)
+		f, _ := os.Open(fileName)
 		monitorId,_ := ioutil.ReadAll(f)
 		return string(monitorId)
 	}else {
-		dstFile,_ := os.Create(*fileName)
+		dstFile,_ := os.Create(fileName)
 		defer dstFile.Close()
 		s:= uuid.String()
 		dstFile.WriteString(s)
