@@ -33,6 +33,7 @@ func HeartBeat(url string,nipingtInterval int64,serverInfo map[string] string,mo
 		MonitorId:	cli.GetMonitorId(),
 		NipingT:	nipingT,
 		RunningTaskIds:	GetTaskIds(),
+		Version:	"0.0.1",
 	}
 	jsons, _ := json.Marshal(heartbeats)
 	monitorJob := new(models.MonitorJob)
