@@ -15,10 +15,11 @@ var (
 	taskMap = make(map[string] string)
 )
 
-func HeartBeat(url string,nipingtInterval int64,serverInfo map[string] string,monitorInfo map[string] string){
+func HeartBeat(nipingtInterval int64,serverInfo map[string] string,monitorInfo map[string] string){
 	log.Println("Start Heartbeat")
-
 	nipingT,errFlag := cli.GetNipingT(serverInfo,nipingtInterval)
+	monitorId := cli.GetMonitorId()
+	url := serverInfo["heartbeatServerUrl"] + "/api/monitors/monitor/" + monitorId + "/heartbeat"
 	if errFlag == true {
 		oss.Exit(1)
 	}
@@ -30,7 +31,7 @@ func HeartBeat(url string,nipingtInterval int64,serverInfo map[string] string,mo
 		Province:	monitorInfo["province"],
 		City:		monitorInfo["city"],
 		Isp:		monitorInfo["isp"],
-		MonitorId:	cli.GetMonitorId(),
+		MonitorId:	monitorId,
 		NipingT:	nipingT,
 		RunningTaskIds:	GetTaskIds(),
 		Version:	"0.0.1",
@@ -65,13 +66,13 @@ func HeartBeat(url string,nipingtInterval int64,serverInfo map[string] string,mo
 			case 1:
 				log.Print("Start Task1")
 				taskMap[monitorJob.Data.TaskId] = ""
-				StartJob(*monitorJob,serverInfo,monitorInfo,taskMap)
+				StartJob(*monitorJob,serverInfo,taskMap)
 				break
 			case 2:
 				log.Print("Start Task2")
 				StopTask(monitorJob.Data.TaskId, taskMap)
 				log.Println("Stop Task:" +  monitorJob.Data.TaskId)
-				StartJob(*monitorJob,serverInfo,monitorInfo,taskMap)
+				StartJob(*monitorJob,serverInfo,taskMap)
 				break
 			}
 		}

@@ -23,10 +23,9 @@ func (p *program) Stop(s service.Service) error {
 func (p *program) run() {
 	cfg.LogConfig()
 	monitorInfo,serverInfo := cfg.ReadConfig()
-	url := serverInfo["heartbeatServerUrl"] + "/api/monitors/monitor/" + monitorInfo["monitorId"] + "/heartbeat"
 	heartbeatInterval,_ := strconv.ParseUint(serverInfo["heartbeatInterval"],0,64)
 	nipingtInterval,_ := strconv.ParseInt(serverInfo["nipingtInterval"],10,64)
-	gocron.Every(heartbeatInterval).Seconds().Do(sche.HeartBeat,url,nipingtInterval,serverInfo,monitorInfo)
+	gocron.Every(heartbeatInterval).Seconds().Do(sche.HeartBeat,nipingtInterval,serverInfo,monitorInfo)
 	<- gocron.Start()
 
 }

@@ -79,7 +79,7 @@ func StabilityTask(url string,monitorJob models.MonitorJob,serverInfo map[string
 			stabilityFlag = true
 			resp, err1 := client.Do(req)
 			if err1 != nil && resp.StatusCode != 200 {
-				log.Println("cannot get response")
+				log.Println("Cannot Get Response")
 			}else {
 				if resp.StatusCode == 200 {
 					log.Println(resp)
@@ -116,7 +116,7 @@ func TimeoutTask(url string,monitorJob models.MonitorJob,serverInfo map[string] 
 			timeoutFlag = true
 			resp, err1 := client.Do(req)
 			if err1 != nil {
-				log.Println("Cannot et response")
+				log.Println("Cannot Get esponse")
 			}else {
 				if resp.StatusCode == 200 {
 					log.Println(resp)
