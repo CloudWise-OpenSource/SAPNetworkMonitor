@@ -58,22 +58,17 @@ func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_arg
 			errArray := strings.Split(string(bytesErr),"\r")
 			for i:=0;i< len(errArray);i++ {
 				if len(strings.Fields(errArray[i])) == 3 {
-					if strings.Fields(errArray[i])[1] == "ERRNO" {
+					if strings.Fields(errArray[i])[1] == "VERSION" {
 						monitorResult.Errno = strings.Fields(errArray[i])[2]
 						monitorResult.Errmsg = string(bytesErr)
 					}
 				}
 			}
 		}else {
-			errArray := []string{}
-			if runtime.GOOS == "windows" {
-				errArray = strings.Split(string(bytesErr),"\r")
-			}else {
-				errArray = strings.Split(string(bytesErr),"\n")
-			}
+			errArray := strings.Split(string(bytesErr),"\n")
 			for i:=0;i< len(errArray);i++ {
 				if len(strings.Fields(errArray[i])) == 3 {
-					if strings.Fields(errArray[i])[1] == "ERRNO" {
+					if strings.Fields(errArray[i])[1] == "VERSION" {
 						monitorResult.Errno = strings.Fields(errArray[i])[2]
 						monitorResult.Errmsg = string(bytesErr)
 					}

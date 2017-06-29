@@ -7,7 +7,6 @@ import (
 	"SAPNetworkMonitor/monitor/src/cli"
 	"net/http"
 	"bytes"
-	"github.com/jasonlvhit/gocron"
 	"SAPNetworkMonitor/monitor/src/models"
 	oss "os"
 )
@@ -20,6 +19,9 @@ func HeartBeat(url string,nipingtInterval int64,serverInfo map[string] string,mo
 	log.Println("Start Heartbeat")
 
 	nipingT,errFlag := cli.GetNipingT(serverInfo,nipingtInterval)
+	if errFlag == true {
+		oss.Exit(1)
+	}
 	heartbeats := models.HeartBeats{
 		Ip:			monitorInfo["ip"],
 		Name:		monitorInfo["name"],
@@ -43,38 +45,38 @@ func HeartBeat(url string,nipingtInterval int64,serverInfo map[string] string,mo
 	fmt.Println(req)
 	client := &http.Client{}
 	resp,err1 :=client.Do(req)
-	if errFlag == true {
-		oss.Exit(1)
-	}
-	if err1 != nil {
-		log.Println("Cannot Get the Response")
-		gocron.Clear()
-		oss.Exit(1)
-	}
-	log.Println("Received Response")
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(resp.Body)
-	s := buf.String()
-	json.Unmarshal([]byte(s), &monitorJob)
 
-	switch monitorJob.Data.ActionType {
-	case 0:
-		log.Print("Start Task0")
-		StopTask(monitorJob.Data.TaskId, taskMap)
-		log.Println("Stop Task:" +  monitorJob.Data.TaskId)
-		break
-	case 1:
-		log.Print("Start Task1")
-		taskMap[monitorJob.Data.TaskId] = ""
-		StartJob(*monitorJob,serverInfo,monitorInfo,taskMap)
-		break
-	case 2:
-		log.Print("Start Task2")
-		StopTask(monitorJob.Data.TaskId, taskMap)
-		log.Println("Stop Task:" +  monitorJob.Data.TaskId)
-		StartJob(*monitorJob,serverInfo,monitorInfo,taskMap)
-		break
+	if err1 != nil || resp.StatusCode != 200 {
+		log.Println("Cannot Get the Response")
+	} else {
+		log.Println("Received Response")
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(resp.Body)
+		s := buf.String()
+		json.Unmarshal([]byte(s), &monitorJob)
+		if monitorJob.Data.MonitorId != "" {
+			switch monitorJob.Data.ActionType {
+			case 0:
+				log.Print("Start Task0")
+				StopTask(monitorJob.Data.TaskId, taskMap)
+				log.Println("Stop Task:" +  monitorJob.Data.TaskId)
+				break
+			case 1:
+				log.Print("Start Task1")
+				taskMap[monitorJob.Data.TaskId] = ""
+				StartJob(*monitorJob,serverInfo,monitorInfo,taskMap)
+				break
+			case 2:
+				log.Print("Start Task2")
+				StopTask(monitorJob.Data.TaskId, taskMap)
+				log.Println("Stop Task:" +  monitorJob.Data.TaskId)
+				StartJob(*monitorJob,serverInfo,monitorInfo,taskMap)
+				break
+			}
+		}
 	}
+
+
 }
 
 func GetTaskIds() []string {
