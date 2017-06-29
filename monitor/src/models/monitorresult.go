@@ -13,4 +13,5 @@ type MonitorResult struct {
 	Tr  			string	    	`json:"tr"`
 	Tr2			string	    	`json:"tr2"`
 	Type			int		`json:"type"`
+	MonitorId	string		`json:"monitorId"`
 }

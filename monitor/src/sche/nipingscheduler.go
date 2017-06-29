@@ -16,7 +16,7 @@ type Cron struct {
 }
 
 func StartJob(monitorJob models.MonitorJob,serverInfo map[string] string,monitorInfo map[string] string,taskMap map[string] string) {
-	url := serverInfo["dataServerUrl"] + "/api/databus/monitor/" + monitorInfo["monitorId"] + "/result"
+	url := serverInfo["dataServerUrl"] + "/api/databus/monitor/" + monitorJob.Data.MonitorId + "/result"
 	interval, _ := strconv.ParseUint(serverInfo["nipingtInterval"], 0, 64)
 	cronJob[monitorJob.Data.TaskId] = new(Cron)
 	go func(){

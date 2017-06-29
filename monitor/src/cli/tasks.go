@@ -32,7 +32,7 @@ func DelayAndBrandwidth(url string,monitorJob models.MonitorJob,serverInfo map[s
 		monitorResult_b := <- channel_result2
 		monitorResult := models.MonitorResult{monitorResult_a.Av2,monitorResult_a.Avg,monitorResult_a.EndTime,monitorResult_a.Errmsg,
 											 monitorResult_a.Errno,monitorResult_a.Max,monitorResult_a.Min,monitorResult_a.StartTime,monitorResult_a.TaskId,
-											 monitorResult_b.Tr,monitorResult_b.Tr2,0}
+											 monitorResult_b.Tr,monitorResult_b.Tr2,0,monitorJob.Data.MonitorId}
 		log.Println(monitorResult)
 		monitorResultJson, _ := json.Marshal(monitorResult)
 		req, err := http.NewRequest("POST", url, bytes.NewBuffer(monitorResultJson))
@@ -66,7 +66,7 @@ func StabilityTask(url string,monitorJob models.MonitorJob,serverInfo map[string
 			monitorResult_stab := <- channel_result
 			monitorResult := models.MonitorResult{monitorResult_stab.Av2,monitorResult_stab.Avg,monitorResult_stab.EndTime,monitorResult_stab.Errmsg,
 												 monitorResult_stab.Errno,monitorResult_stab.Max,monitorResult_stab.Min,monitorResult_stab.StartTime,monitorResult_stab.TaskId,
-												 monitorResult_stab.Tr,monitorResult_stab.Tr2,1}
+												 monitorResult_stab.Tr,monitorResult_stab.Tr2,1,monitorJob.Data.MonitorId}
 			log.Println(monitorResult)
 			monitorResultJson, _ := json.Marshal(monitorResult)
 			req, err := http.NewRequest("POST", url, bytes.NewBuffer(monitorResultJson))
@@ -78,7 +78,7 @@ func StabilityTask(url string,monitorJob models.MonitorJob,serverInfo map[string
 			client := &http.Client{}
 			stabilityFlag = true
 			resp, err1 := client.Do(req)
-			if err1 != nil {
+			if err1 != nil && resp.StatusCode != 200 {
 				log.Println("cannot get response")
 			}else {
 				if resp.StatusCode == 200 {
@@ -103,7 +103,7 @@ func TimeoutTask(url string,monitorJob models.MonitorJob,serverInfo map[string] 
 			monitorResult_idle := <- channel_result
 			monitorResult := models.MonitorResult{monitorResult_idle.Av2,monitorResult_idle.Avg,monitorResult_idle.EndTime,monitorResult_idle.Errmsg,
 												 monitorResult_idle.Errno,monitorResult_idle.Max,monitorResult_idle.Min,monitorResult_idle.StartTime,monitorResult_idle.TaskId,
-												 monitorResult_idle.Tr,monitorResult_idle.Tr2,2}
+												 monitorResult_idle.Tr,monitorResult_idle.Tr2,2,monitorJob.Data.MonitorId}
 			log.Println(monitorResult)
 			monitorResultJson, _ := json.Marshal(monitorResult)
 			req, err := http.NewRequest("POST", url, bytes.NewBuffer(monitorResultJson))
