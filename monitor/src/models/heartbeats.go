@@ -11,4 +11,5 @@ type HeartBeats struct {
 	MonitorId	string		`json:"monitorId"`
 	NipingT		string		`json:"nipingT"`
 	RunningTaskIds	[]string	`json:"runningTaskIds"`
+	Version		string		`json:"version"`
 }
