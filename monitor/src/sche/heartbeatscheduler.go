@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"bytes"
 	"SAPNetworkMonitor/monitor/src/models"
-	oss "os"
 )
 
 var (
@@ -17,12 +16,9 @@ var (
 
 func HeartBeat(nipingtInterval int64,serverInfo map[string] string,monitorInfo map[string] string){
 	log.Println("Start Heartbeat")
-	nipingT,errFlag := cli.GetNipingT(serverInfo,nipingtInterval)
+	nipingT := cli.GetNipingT(serverInfo,nipingtInterval)
 	monitorId := cli.GetMonitorId()
 	url := serverInfo["heartbeatServerUrl"] + "/api/monitors/monitor/" + monitorId + "/heartbeat"
-	if errFlag == true {
-		oss.Exit(1)
-	}
 	heartbeats := models.HeartBeats{
 		Ip:			monitorInfo["ip"],
 		Name:		monitorInfo["name"],
@@ -44,13 +40,13 @@ func HeartBeat(nipingtInterval int64,serverInfo map[string] string,monitorInfo m
 	}
 	req.Header.Set("Authorization","Bearer " +  monitorInfo["accessToken"])
 	req.Header.Set("Content-Type","application/json")
-	fmt.Println(req)
+	log.Println(req)
 	client := &http.Client{}
 	resp,err1 :=client.Do(req)
-
-	if err1 != nil || resp.StatusCode != 200 {
+	if err1 != nil {
 		log.Println("Cannot Get the Response")
-	} else {
+		log.Println("The possible problem is the wrong heartbeatServerUrl: " +  serverInfo["heartbeatServerUrl"])
+	}else if resp.StatusCode == 200 {
 		log.Println("Received Response")
 		buf := new(bytes.Buffer)
 		buf.ReadFrom(resp.Body)
@@ -76,9 +72,9 @@ func HeartBeat(nipingtInterval int64,serverInfo map[string] string,monitorInfo m
 				break
 			}
 		}
+	}else {
+		log.Println(resp)
 	}
-
-
 }
 
 func GetTaskIds() []string {
