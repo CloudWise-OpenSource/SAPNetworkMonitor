@@ -16,24 +16,26 @@ var (
 	lastNipingT int64
 )
 
-func GetNipingT(serverInfo map[string] string,nipingtInterval int64) (string,bool) {
+func GetNipingT(serverInfo map[string] string,nipingtInterval int64) (string) {
 	nipingT := ""
 	if time.Now().Unix() - lastNipingT > nipingtInterval {
 		cmd,err := exec.Command(serverInfo["nipingPath"],"-t").Output()
 		if err != nil {
-			nipingT := "Configuration Present Error: " + "nipingPath: " + serverInfo["nipingPath"] +
-				" heartbeatServerUrl: " + serverInfo["heartbeatServerUrl"] + " dataServerUrl: " + serverInfo["dataServerUrl"]
+			nipingT := "Configuration Present Error: cannot find niping, your niping path is " + serverInfo["nipingPath"]
 			log.Println(nipingT)
-			return nipingT,true
+			return nipingT
 		}
-		nipingT = string(cmd)
+		if cmd != nil {
+			nipingT = "OK"
+			return nipingT
+		}
 		lastNipingT = time.Now().Unix()
 	}
-	return nipingT,false
+	return nipingT
 }
 
 func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_args int, l_args int,
-	d_args int,executeid int, channel chan models.MonitorResult) {
+	d_args int,executeid int) models.MonitorResult {
 	monitorResult := new(models.MonitorResult)
 	startTime := time.Now().Unix()
 	cmd := exec.Command(nipingPath,"-c","-H",router,"-B",strconv.Itoa(b_args),"-L",strconv.Itoa(l_args),"-D",strconv.Itoa(d_args))
@@ -79,7 +81,7 @@ func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_arg
 		monitorResult.EndTime = endTime
 		monitorResult.TaskId = taskId
 		monitorResult.Type = typeId
-		channel <- *monitorResult
+		return *monitorResult
 	}
 	bytes, err := ioutil.ReadAll(stdout)
 	if err != nil {
@@ -161,5 +163,5 @@ func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_arg
 	monitorResult.EndTime = endTime
 	monitorResult.TaskId = taskId
 	monitorResult.Type = typeId
-	channel <- *monitorResult
+	return *monitorResult
 }
