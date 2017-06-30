@@ -27,6 +27,10 @@
             <outputDirectory>conf</outputDirectory>
         </fileSet>
         <fileSet>
+            <directory>package/monitor</directory>
+            <outputDirectory>monitor</outputDirectory>
+        </fileSet>
+        <fileSet>
             <directory>package/logs</directory>
             <outputDirectory>logs</outputDirectory>
             <excludes>

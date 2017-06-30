@@ -69,6 +69,15 @@ body {
 	.quick-actions_homepage .quick-actions li{ min-width:47%;}
 }
 
+/*在移动端显示两行*/
+@media (max-width: 767px) {
+    .formLine span{
+        display:inline-block;
+        width:35%;
+        text-align:left;
+        padding-right:5px;
+    }
+}
 
 @media (min-width: 1200px){
 	.row-fluid .span12{

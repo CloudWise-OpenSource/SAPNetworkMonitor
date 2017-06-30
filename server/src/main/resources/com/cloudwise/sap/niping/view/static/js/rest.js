@@ -82,7 +82,7 @@ var Response  = function(){
         response = response || {};
 
         this.code = response.code || 'error';
-        this.msg = response.msg;
+        this.msg = response.message;
         this.data = response.data;
 
         return this;
@@ -326,6 +326,45 @@ function restPost(url, data, opts) {
     opts = opts || {};
 
     opts.type = 'POST';
+    opts.data = data || {};
+
+    return rest(url, opts);
+}
+
+/**
+ * 发送一个DELETE请求
+ * 该函数供删除数据时使用,并不一定是DELETE请求,具体METHOD由后端接口定
+ * 为了提升可维护性,删除数据时,都使用此函数
+ * @param url
+ * @param data
+ * @param opts
+ * @returns {Deferred}
+ */
+function restDelete(url, data, opts) {
+    opts = opts || {};
+
+    // 具体方法看后端接口规定
+    opts.type = 'DELETE';
+    opts.data = data || {};
+
+    return rest(url, opts);
+}
+
+
+/**
+ * 发送一个PUT请求
+ * 该函数供删除数据时使用,并不一定是DELETE请求,具体METHOD由后端接口定
+ * 为了提升可维护性,删除数据时,都使用此函数
+ * @param url
+ * @param data
+ * @param opts
+ * @returns {Deferred}
+ */
+function restPut(url, data, opts) {
+    opts = opts || {};
+
+    // 具体方法看后端接口规定
+    opts.type = 'PUT';
     opts.data = data || {};
 
     return rest(url, opts);

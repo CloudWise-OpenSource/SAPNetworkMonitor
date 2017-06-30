@@ -16,10 +16,7 @@ import org.skife.jdbi.v2.exceptions.DBIException;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -142,6 +139,32 @@ public class MonitorService {
             }
         }
         return true;
+    }
+
+    public Optional<List<Monitor>> listActiveMonitors(String accountId) throws NiPingException {
+        Optional<List<Monitor>> monitors = Optional.empty();
+        try {
+            monitors = Optional.ofNullable(monitorDao.selectByAccountId(accountId, Monitor.Status.active.getStatus()));
+            log.debug("select account {} monitors {}", accountId, Arrays.toString(monitors.get().toArray(new Monitor[]{})));
+        }
+        catch (DBIException e) {
+            log.error("list monitors error: {}", ExceptionUtils.getMessage(e));
+            throw new NiPingException(DBError);
+        }
+        return monitors;
+    }
+
+    public Optional<List<Monitor>> listAllMonitors(String accountId) throws NiPingException {
+        Optional<List<Monitor>> monitors = Optional.empty();
+        try {
+            monitors = Optional.ofNullable(monitorDao.selectAllByAccountId(accountId));
+            log.debug("select account {} monitors {}", accountId, Arrays.toString(monitors.get().toArray(new Monitor[]{})));
+        }
+        catch (DBIException e) {
+            log.error("list monitors error: {}", ExceptionUtils.getMessage(e));
+            throw new NiPingException(DBError);
+        }
+        return monitors;
     }
 
     RetryPolicy retryPolicy = new RetryPolicy()

@@ -6,8 +6,8 @@ echo $PORTAL_HOME
 cd $PORTAL_HOME
 JVM_OPTS="
 -server 
- -Xms3g 
- -Xmx3g
+ -Xms1g
+ -Xmx1g
  -XX:NewSize=512m
  -XX:SurvivorRatio=6
  -XX:+AlwaysPreTouch
@@ -36,7 +36,7 @@ if [ x$action == x ] ;then
     start|tee logs/console.log |tee logs/console.log
 elif [ $action == "migrate" ] ;then
     migrate() {
-	nohup java $JVM_OPTS -jar lib/sap-network-monitor-server-1.0.0.jar db migrate conf/server.yml &
+	nohup java $JVM_OPTS -jar lib/sap-network-monitor-server-1.0.0.jar db migrate conf/server.yml --migrations conf/migrations.xml  &
 	echo -e '\r'
     }	
     migrate|tee logs/console.log |tee logs/console.log

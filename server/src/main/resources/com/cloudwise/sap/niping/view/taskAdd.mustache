@@ -1,0 +1,45 @@
+<form class="form-horizontal editForm" method="post" action="">
+    <div class="control-group">
+        <label class="control-label">任务名称</label>
+        <div class="controls">
+            <input type="text" name="name" id="name">
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">路由地址</label>
+        <div class="controls">
+            <input type="text" name="jobDesc.router" id="routeAddress">
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">监测频率</label>
+        <div class="controls">
+            <select name="interval" id="interval">
+                <option value=1>1分钟</option>
+                <option value=2>2分钟</option>
+                <option value=3>3分钟</option>
+                <option value=4>4分钟</option>
+                <option value=5>5分钟</option>
+                <option value=10>10分钟</option>
+                <option value=15>15分钟</option>
+                <option value=30>30分钟</option>
+                <option value=60>60分钟</option>
+            </select>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">监测点</label>
+        <div class="controls">
+            <select name="selectMonitorIdString" id="monitor" multiple="multiple">
+                {{#result}}
+                    {{#data}}
+                    <option value="{{monitorId}}" >{{name}}</option>
+                    {{/data}}
+                {{/result}}
+            </select>
+        </div>
+    </div>
+    <div class="form-actions">
+        <input type="submit" value="保存" class="btn btn-info saveTask">
+    </div>
+</form>

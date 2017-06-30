@@ -2,6 +2,7 @@ package com.cloudwise.sap.niping;
 
 import com.cloudwise.sap.niping.auth.*;
 import com.cloudwise.sap.niping.inject.NiPingServiceBinder;
+import com.cloudwise.sap.niping.resource.AuthFilterDynamicBinding;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -14,6 +15,7 @@ import io.dropwizard.auth.basic.BasicCredentialAuthFilter;
 import io.dropwizard.auth.oauth.OAuthCredentialAuthFilter;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.jdbi.DBIFactory;
+import io.dropwizard.jersey.sessions.SessionFactoryProvider;
 import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -38,7 +40,8 @@ public class NiPingMonitorApplication extends Application<ServerConfiguration> {
 
         ObjectMapper objectMapper = environment.getObjectMapper();
         SapConfiguration sapConfiguration = configuration.getSapConfig();
-        NiPingServiceBinder niPingServiceBinder = new NiPingServiceBinder(jdbi, objectMapper, sapConfiguration);
+        JobConfiguration jobConfiguration = configuration.getJobConfig();
+        NiPingServiceBinder niPingServiceBinder = new NiPingServiceBinder(jdbi, objectMapper, sapConfiguration, jobConfiguration);
 
         ServiceLocator serviceLocator = ServiceLocatorUtilities.bind(niPingServiceBinder);
         SapBasicAuthenticator sapBasicAuthenticator = ServiceLocatorUtilities.getService(serviceLocator, SapBasicAuthenticator.class
@@ -57,13 +60,19 @@ public class NiPingMonitorApplication extends Application<ServerConfiguration> {
                 .class, basicAuthFilter, OAuthUser.class, oAuthFilter));
         final AbstractBinder binder = new PolymorphicAuthValueFactoryProvider.Binder<>(ImmutableSet.of(BasicAuthUser.class, OAuthUser
                 .class));
-
+        environment.jersey().register(new AuthFilterDynamicBinding());
         environment.jersey().register(feature);
         environment.jersey().register(binder);
-        environment.servlets().setSessionHandler(new SessionHandler());
 
         environment.jersey().register(niPingServiceBinder);
-        environment.jersey().packages("com.cloudwise.sap.niping");
+        environment.jersey().packages("com.cloudwise.sap.niping.auth");
+        environment.jersey().packages("com.cloudwise.sap.niping.service");
+        environment.jersey().packages("com.cloudwise.sap.niping.dao");
+        environment.jersey().packages("com.cloudwise.sap.niping.common.vo.converter");
+        environment.jersey().packages("com.cloudwise.sap.niping.resource");
+
+        environment.jersey().register(SessionFactoryProvider.class);
+        environment.servlets().setSessionHandler(new SessionHandler());
     }
 
     @Override
@@ -79,6 +88,5 @@ public class NiPingMonitorApplication extends Application<ServerConfiguration> {
         bootstrap.addBundle(new AssetsBundle("/com/cloudwise/sap/niping/view/static", "/static", null, "static"));
         bootstrap.addBundle(new AssetsBundle("/com/cloudwise/sap/niping/view/vendor", "/vendor", null, "vendor"));
         bootstrap.addBundle(new ViewBundle<ServerConfiguration>());
-
     }
 }

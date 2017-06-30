@@ -68,7 +68,14 @@ $(document).ready(function() {
     if(!checkPC()){
     		$("#loginbox .main_input_box input").css("margin-bottom","0px");
     }else{
-    		console.log(navigator.platform)
+    		//console.log(navigator.platform)
     }
-     
+
+    var msg = $("input#resultCode").val();
+    if(parseInt(msg) != 1000){
+        $(".loginError").html("用户名或密码错误!").fadeIn(1000);
+        setTimeout(function(){
+            $(".loginError").fadeOut(2000).html("");
+        },2000);
+    }
 });

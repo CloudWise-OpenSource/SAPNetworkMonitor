@@ -7,38 +7,53 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+import java.util.List;
+
 @Data
 @Builder
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Task extends AbstractEntity {
 
-	private static final long serialVersionUID = 5824620618374870988L;
+    private static final long serialVersionUID = 5824620618374870988L;
 
-	private String taskId;
-	private String name;
-	private int interval;
-	private String configJson;
-	private int status;
+    private String taskId;
+    private String name;
+    private int interval;
+    private String configJson;
+    private int status;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    @JsonIgnore
+    private JobDesc jobDesc;
+    @JsonIgnore
+    private List<Monitor> monitors;
+    @JsonIgnore
+    private List<String> selectMonitorIds;
+    @JsonIgnore
+    private String selectMonitorIdString;
+    @JsonIgnore
+    private MonitorJob.Action action;
+    @JsonIgnore
+    private String monitorId;
+    @JsonIgnore
+    private String monitorName;
+    @JsonIgnore
+    private String resultId;
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	@JsonIgnore
-	private MonitorJob.Action action;
-	@JsonIgnore
-	private String monitorId;
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public enum Status {
-		enable(1), disable(0), deleted(-1);
+    public enum Status {
+        enable(1), disable(0), deleted(-1);
 
-		@Getter
-		private int status;
-		Status(int status){this.status = status;}
-	}
+        @Getter
+        private int status;
+
+        Status(int status) {this.status = status;}
+    }
 }

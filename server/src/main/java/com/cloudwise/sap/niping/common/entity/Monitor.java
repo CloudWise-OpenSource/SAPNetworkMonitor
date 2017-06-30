@@ -1,5 +1,6 @@
 package com.cloudwise.sap.niping.common.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +17,7 @@ public class Monitor extends AbstractEntity {
 
     private static final long serialVersionUID = 6732242760258530600L;
     private String monitorId;
+    private String version;
     private String name;
     private String country;
     private String province;
@@ -26,6 +28,9 @@ public class Monitor extends AbstractEntity {
     private String nipingT;
     private int status;
     private List<String> runningTaskIds;
+
+    @JsonIgnore
+    private boolean isUsable;
 
     public enum Status {
         active(1), inactive(0);

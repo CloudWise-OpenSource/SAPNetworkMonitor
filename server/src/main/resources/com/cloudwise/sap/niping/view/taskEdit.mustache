@@ -1,0 +1,48 @@
+{{#result}}
+    {{#data}}
+    <form class="form-horizontal editForm" method="post" action="#">
+        <div class="control-group">
+            <label class="control-label">任务名称</label>
+            <div class="controls">
+                <input type="text" name="name" id="name" value="{{{name}}}">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">路由地址</label>
+            <div class="controls">
+                <input type="text" name="jobDesc.router" id="routeAddress" value="{{#jobDesc}}{{{router}}}{{/jobDesc}}">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">监测频率</label>
+            <div class="controls">
+                <select name="interval" id="interval" data-interval="{{interval}}">
+                    <option value=1>1分钟</option>
+                    <option value=2>2分钟</option>
+                    <option value=3>3分钟</option>
+                    <option value=4>4分钟</option>
+                    <option value=5>5分钟</option>
+                    <option value=10>10分钟</option>
+                    <option value=15>15分钟</option>
+                    <option value=30>30分钟</option>
+                    <option value=60>60分钟</option>
+                </select>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">监测点</label>
+            <div class="controls">
+                <select name="selectMonitorIdString" id="monitor" multiple="multiple" data-monitorids="{{selectMonitorIdString}}">
+                    {{#monitors}}
+                    <option value="{{monitorId}}" >{{name}}</option>
+                    {{/monitors}}
+                </select>
+            </div>
+        </div>
+        <div class="form-actions">
+            <input type="hidden" value="{{taskId}}" name="taskId" />
+            <input type="submit" value="保存" class="btn btn-info saveTask" />
+        </div>
+    </form>
+    {{/data}}
+{{/result}}

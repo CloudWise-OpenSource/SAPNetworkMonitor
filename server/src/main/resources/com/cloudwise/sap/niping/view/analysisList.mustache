@@ -1,0 +1,34 @@
+{{#result}}
+    {{#data}}
+        <tr class="gradeX">
+            <td>{{#monitor}}{{name}}{{/monitor}}</td>
+            <td>{{#monitor}}{{ip}}{{/monitor}}</td>
+            <td>{{av2String}}</td>
+            {{#isNoTime}}
+                {{#isUsable}}
+                    <td class="green">
+                        可用
+                    </td>
+                {{/isUsable}}
+                {{^isUsable}}
+                    <td class="red">
+                    不可用
+                    </td>
+                {{/isUsable}}
+            {{/isNoTime}}
+            {{^isNoTime}}
+                <td>
+                {{usableString}}
+                </td>
+            {{/isNoTime}}
+            <td>{{tr2String}}</td>
+            <td>{{#monitor}}{{country}}{{/monitor}}</td>
+            <td>{{#monitor}}{{province}}{{/monitor}}</td>
+            <td>{{#monitor}}{{city}}{{/monitor}}</td>
+            <td>{{#monitor}}{{isp}}{{/monitor}}</td>
+            <td class="operate">
+                <a alt="" href="/api/history"><i class="icon-2x icon-zoom-in"></i>查看</a>
+            </td>
+        </tr>
+    {{/data}}
+{{/result}}

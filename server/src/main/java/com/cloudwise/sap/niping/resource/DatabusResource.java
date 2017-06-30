@@ -1,6 +1,7 @@
-package com.cloudwise.sap.niping.databus;
+package com.cloudwise.sap.niping.resource;
 
 import com.cloudwise.sap.niping.auth.OAuthUser;
+import com.cloudwise.sap.niping.common.constant.Result;
 import com.cloudwise.sap.niping.common.entity.MonitorNiPingResult;
 import com.cloudwise.sap.niping.common.vo.RestfulReturnResult;
 import com.cloudwise.sap.niping.exception.NiPingException;
@@ -14,6 +15,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
+import static com.cloudwise.sap.niping.common.constant.Result.MonitoridNotMatchError;
 import static com.cloudwise.sap.niping.common.constant.Result.SUCCESS;
 
 @Slf4j
@@ -29,6 +31,11 @@ public class DatabusResource {
     @Path("/monitor/{monitorId}/result")
     public RestfulReturnResult result(@Auth OAuthUser user, @PathParam("monitorId") String monitorId, @NotNull @Valid MonitorNiPingResult
             monitorNiPingResult) {
+        if (!monitorId.equals(monitorNiPingResult.getMonitorId())) {
+            log.error("monitor id in path {} and json {} and parameter not match error.", monitorId, monitorNiPingResult.getMonitorId());
+            return new RestfulReturnResult(new NiPingException(MonitoridNotMatchError), null);
+        }
+
         monitorNiPingResult.setAccountId(user.getAccountId());
         monitorNiPingResult.setMonitorId(monitorId);
         try {

@@ -1,15 +1,18 @@
 package com.cloudwise.sap.niping.common.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
+@Builder
 @Data
 @EqualsAndHashCode(callSuper = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MonitorNiPingResult extends AbstractEntity {
 	private static final long serialVersionUID = -4165099767077210852L;
-	public static final int TYPE_PERFORMANCE = 0;
-	public static final int TYPE_STABILITY = 1;
-	public static final int TYPE_IDLE_TIMEOUT = 2;
 	private String id;
 	private String monitorId;
 	private String taskId;
@@ -36,4 +39,49 @@ public class MonitorNiPingResult extends AbstractEntity {
 	 */
 	private String errmsg;
 
+
+	public enum Type {
+
+		PERFORMANCE(0), STABILITY(1), IDLE_TIMEOUT(2);
+
+		@Getter
+		private int value;
+
+		Type(int value) {
+			this.value = value;
+		}
+	}
+
+
+	@JsonIgnore
+	private Monitor monitor;
+
+	@JsonIgnore
+	private boolean isNoTime;
+
+	@JsonIgnore
+	private boolean isUsable;
+
+	@JsonIgnore
+	private String collectedTimeString;
+
+	@JsonIgnore
+	private String startTimeString;
+
+	@JsonIgnore
+	private String endTimeString;
+
+	@JsonIgnore
+	private String typeString;
+
+	@JsonIgnore
+	private String av2String;
+	@JsonIgnore
+	private String tr2String;
+	@JsonIgnore
+	private String usableString;
+
+	public int getType() {
+		return type;
+	}
 }
