@@ -1,0 +1,27 @@
+{{#result}}
+    {{#data}}
+        <tr class="gradeX">
+            <td>{{name}}</td>
+            {{#isUsable}}
+                <td class="green">
+                    活动
+                </td>
+            {{/isUsable}}
+            {{^isUsable}}
+                <td class="red">
+                    丢失
+                </td>
+            {{/isUsable}}
+            <td>{{ip}}</td>
+            <td>{{country}}</td>
+            <td>{{province}}</td>
+            <td>{{city}}</td>
+            <td>{{isp}}</td>
+            <td>{{version}}</td>
+            <td class="operate">
+                <input value="{{nipingT}}" type="hidden"/>
+                <a alt="" href="#"><i class="icon-2x icon-zoom-in"></i>查看</a>
+            </td>
+        </tr>
+    {{/data}}
+{{/result}}

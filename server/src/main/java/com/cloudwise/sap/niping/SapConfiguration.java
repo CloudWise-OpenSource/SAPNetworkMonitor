@@ -7,5 +7,8 @@ import lombok.Data;
 public class SapConfiguration {
     @JsonProperty("monitor")
     private MonitorConfiguration monitorConfiguration;
+
+    @JsonProperty("job")
+    private JobConfiguration jobConfiguration;
 }
 

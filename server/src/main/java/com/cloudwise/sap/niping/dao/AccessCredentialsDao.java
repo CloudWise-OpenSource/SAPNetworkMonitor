@@ -12,4 +12,7 @@ public interface AccessCredentialsDao {
             " WHERE TOKEN = :token")
     @RegisterMapper(AccessCredentialsMapper.class)
     public AccessCredentials getCredentialsByToken(@Bind("token") String token);
+
+    @SqlQuery("SELECT TOKEN FROM SNM_ACCESS_CREDENTIALS WHERE ACCOUNT_ID = :accountId")
+    String getTokenByAccountId(@Bind("accountId") String accountId);
 }

@@ -23,6 +23,7 @@ public interface MonitorTaskDao {
     @SqlUpdate("UPDATE SNM_MONITOR_TASK SET REDISPATCHER = :redispatchered WHERE TASK_ID = :taskId AND MONITOR_ID = :monitorId")
     void updateMonitorTaskRedispatcher(@Bind("taskId") String taskId, @Bind("monitorId") String monitorId, @Bind("redispatchered") int redispatchered);
 
-    @SqlUpdate("REMOVE SNM_MONITOR_TASK WHERE TASK_ID = :taskId")
+    @SqlUpdate("DELETE FROM SNM_MONITOR_TASK WHERE TASK_ID = :taskId")
     void removeMonitorTask(@Bind("taskId") String taskId);
+
 }

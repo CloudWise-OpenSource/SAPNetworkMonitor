@@ -6,56 +6,36 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css" />
 	<link rel="stylesheet" href="/vendor/bootstrap/bootstrap-responsive.min.css" />
-	<!--<link href="https://cdn.bootcss.com/bootstrap-modal/2.2.6/css/bootstrap-modal.min.css" rel="stylesheet">-->
-	<!--<link href="https://cdn.bootcss.com/bootstrap-modal/2.2.6/css/bootstrap-modal-bs3patch.min.css" rel="stylesheet">-->
 	<link rel="stylesheet" href="/vendor/bootstrap/bootstrap-multiselect.css">
-	<!--<link rel="stylesheet" href="./static/css/uniform.css" />-->
-	<!--<link rel="stylesheet" href="./vendor/bootstrap/select2.css" />-->
-	<!--<link rel="stylesheet" href="./vendor/bootstrap/bootstrap-switch.min.css" />-->
-	<link rel="stylesheet" href="/static/css/matrix-style.css" />
+    <link rel="stylesheet" href="/vendor/confirm/jquery-confirm.min.css" />
+    <link rel="stylesheet" href="/vendor/flatui/flat-ui.min.css" />
+    <link rel="stylesheet" href="/static/css/matrix-style.css" />
 	<link rel="stylesheet" href="/static/css/matrix-media.css" />
 	<link href="/vendor/font-awesome/css/font-awesome.css" rel="stylesheet" />
+
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements. All other JS at the end of file. -->
+    <!--[if lt IE 9]>
+    <script src="/vendor/common/html5shiv.js"></script>
+    <script src="/vendor/common/respond.min.js"></script>
+    <![endif]-->
 
 </head>
 <body>
 
 <!--Header-part-->
-<div id="header">
-	<div class="logo">
-		<h1>
-			<a href="index.html">SAP Network Monitoring</a>
-		</h1>
-	</div>
-
-	<!--top-Header-menu-->
-	<div id="user-nav" class="navbar navbar-inverse">
-		<ul class="nav">
-			<li class="">
-				<a title="" href="login.html">
-					<i class="icon icon-share-alt"></i>
-					<span class="text">退出</span>
-				</a>
-			</li>
-		</ul>
-	</div>
-</div>
+{{>topHeader}}
 <!--close-Header-part-->
 
 <!--sidebar-menu-->
-
-<div id="sidebar">
-	<a href="#" class="visible-phone"><i class="icon icon-th"></i>监控任务</a>
-	<ul>
-		<li class="active"><a href="index.html"><i class="icon icon-th"></i> <span>任务列表</span></a></li>
-		<li><a href="analysis.html"><i class="icon icon-file"></i> <span>数据分析</span></a> </li>
-		<li><a href="history.html"><i class="icon icon-list"></i> <span>历史记录</span></a> </li>
-		<li><a href="monitor.html"><i class="icon icon-barcode"></i> <span>监测点</span></a> </li>
-	</ul>
-</div>
+<div id="sidebar"> </div>
 
 <div id="content">
 	<div id="content-header">
-		<div id="breadcrumb"> <a href="/" title="返回首页" class="tip-bottom"><i class="icon-home"></i> 首页</a> <a href="./index.html" class="current">任务列表</a> </div>
+		<div id="breadcrumb">
+            <a href="/" title="返回首页" class="tip-bottom"><i class="icon-home"></i> 首页</a>
+            <a href="" class="current"></a>
+        </div>
 		<!--<h1>监控任务列表</h1>-->
 	</div>
 	<div class="container-fluid">
@@ -73,43 +53,10 @@
 								<th width="20%">路由</th>
 								<th width="15%">频率(分钟)</th>
 								<th>监测点</th>
-								<th width="15%">操作</th>
+								<th width="20%">操作</th>
 							</tr>
-							<!--<tr>
-                              <th>bandwidthB</th>
-                              <th>bandwidthL</th>
-                              <th>idleTimeoutD</th>
-                              <th>roundTripTimeB</th>
-                              <th>roundTripTimeL</th>
-                              <th>router</th>
-                              <th>stabilityB</th>
-                              <th>stabilityD</th>
-                              <th>stabilityL</th>
-                            </tr>-->
 							</thead>
                             <tbody>
-                            {{#result}}
-                                {{#data}}
-                                    <tr class="gradeX">
-                                        <td class="taskName">
-                                            <span class="red"><i class="icon-stop"></i></span>
-                                            {{name}}
-                                        </td>
-                                        <td>
-                                            {{#jobDesc}}
-                                                {{router}}
-                                            {{/jobDesc}}
-                                        </td>
-                                        <td>{{interval}}</td>
-                                        <td>{{monitorIds}}</td>
-                                        <td class="operate">
-                                            <a alt="暂停/开启" href=""><i class="icon-2x icon-zoom-in"></i></a>
-                                            <a alt="编辑" href=""><i class="icon-2x icon-edit"></i></a>
-                                            <a alt="删除" href=""><i class="icon-2x icon-remove"></i></a>
-                                        </td>
-                                    </tr>
-                                {{/data}}
-                            {{/result}}
                             </tbody>
 						</table>
 					</div>
@@ -118,50 +65,9 @@
 
 			<div class="span12 dataEdit hide">
 				<div class="widget-box fullWidth">
-					<div class="widget-content nopadding">
+					<div class="widget-content nopadding formPanel">
 						<!--表单页面-->
-						<form class="form-horizontal editForm" method="post" action="#">
-							<div class="control-group">
-								<label class="control-label">任务名称</label>
-								<div class="controls">
-									<input type="text" name="name" id="name">
-								</div>
-							</div>
-							<div class="control-group">
-								<label class="control-label">路由地址</label>
-								<div class="controls">
-									<input type="text" name="routeAddress" id="routeAddress">
-								</div>
-							</div>
-							<div class="control-group">
-								<label class="control-label">监测频率</label>
-								<div class="controls">
-									<select name="interval" id="interval">
-										<option value=1>1分钟</option>
-										<option value=5>5分钟</option>
-										<option value=10>10分钟</option>
-										<option value=15>15分钟</option>
-									</select>
-								</div>
-							</div>
-							<div class="control-group">
-								<label class="control-label">监测点</label>
-								<div class="controls">
-									<select name="monitor" id="monitor" multiple="multiple">
-										<option value=1>中国电信</option>
-										<option value=2>中国联通</option>
-										<option value=3>中国移动</option>
-										<option value=4>监测点1</option>
-										<option value=5>监测点2</option>
-										<option value=6>监测点3</option>
-										<option value=7>监测点4</option>
-									</select>
-								</div>
-							</div>
-							<div class="form-actions">
-								<input type="submit" value="保存" class="btn btn-info">
-							</div>
-						</form>
+                        {{>taskEdit}}
 					</div>
 				</div>
 			</div>
@@ -171,36 +77,11 @@
 
 
 <!--Footer-part-->
-<div class="row-fluid">
-	<div id="footer" class="span12"> Published By <a href="http://www.cloudwise.com/" target="_blank">云智慧</a></div>
-</div>
+{{>bottomFotter}}
 <!--end-Footer-part-->
-<script src="/static/js/config.js"></script>
-<script src="/vendor/jquery/jquery.min.js"></script>
-<script src="/vendor/jquery/jquery.ui.custom.js"></script>
-<!--<script src="/vendor/mustache/mustache.min.js"></script>-->
-<script src="/vendor/bootstrap/bootstrap.min.js"></script>
-<script src="/vendor/bootstrap/bootstrap-multiselect.js"></script>
-<!--<script src="/vendor/bootstrap/bootstrap-modal.min.js"></script>-->
-<!--<script src="/vendor/bootstrap/bootstrap-modalmanager.min.js"></script>-->
-<!--<script src="./vendor/bootstrap/bootstrap-switch.min.js"></script>-->
-<script src="/vendor/jquery/jquery.uniform.js"></script>
-<!--<script src="./vendor/jquery/select2.min.js"></script>-->
-<script src="/vendor/jquery/jquery.dataTables.min.js"></script>
-<script src="/static/js/matrix.js"></script>
-<script src="/static/js/matrix.tables.js"></script>
-<!--引入异步请求类包-->
-<script src="/static/js/rest.js"></script>
+<script type="text/javascript" src="/static/js/matrix.index.js"></script>
 <script type="text/javascript">
-	$(function(){
-		/*
-			response 格式:
-				 code:"success"
-				 data:{page: 1, pageSize: 10, pageCount: 0, totalCount: 0, list: []}
-				 msg:"operate success."
-		 */
 
-	});
 </script>
 </body>
 </html>

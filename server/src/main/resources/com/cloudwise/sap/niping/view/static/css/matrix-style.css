@@ -1638,10 +1638,15 @@ div.dataTables_wrapper .ui-widget-header {
 .btn-info:hover, .btn-info:focus, .btn-info:active, .btn-info.active, .btn-info.disabled, .btn-info[disabled]{
 	background: #078483;
 }
-
+td.operate{
+    text-align:left;
+}
 td.operate .icon-2x{
 	font-size:1.5em;
 	margin:0px 2px;
+}
+td.taskName{
+    text-align:left;
 }
 td.taskName span{
 	height:inherit;
@@ -1720,4 +1725,82 @@ div.dataTables_wrapper .ui-widget-header{
 	margin-top:3px;
 	margin-right:3px;
 	margin-bottom:0px;
+}
+
+.confirmbtn{
+	float:right;
+	margin-top:150px;
+
+}
+
+.installList{
+    padding-top:14px;
+}
+
+.installList .btn-info{
+    float:left;
+    margin:10px;
+}
+.formLine{
+    margin-top:10px;
+    font-family:'Microsoft YaHei';
+}
+.formLine span{
+    display:inline-block;
+    width:12%;
+    text-align:right;
+    padding-right:5px;
+}
+
+.bootstrap-switch{
+    width:60px;
+
+}
+.bootstrap-switch > div > span{
+    width:46px;
+    text-align:left;
+    padding-left:5px;
+}
+
+.bootstrap-switch-handle-off:before{
+    left:32px;
+}
+.bootstrap-switch-off .bootstrap-switch-handle-off:before{
+    margin-left:18px;
+}
+.bootstrap-switch-off .bootstrap-switch-handle-off{
+    padding-left:30px;
+}
+
+a.editTask{
+    margin-right:5px;
+}
+td.operate a{
+    margin-bottom:0px;
+}
+
+.chartNoData{
+    font-size:14px;
+    text-align:center;
+    line-height:120px;
+}
+
+.filterMointor{
+    width:100px;
+}
+
+.history select{
+    margin-bottom:0px;
+}
+
+.history .bracket{
+    font-size:14px;
+}
+
+.monitorHistory .dataTables_wrapper{
+    border-bottom:1px solid #ddd;
+}
+
+.jconfirm-box-container{
+    margin-top:50px;
 }

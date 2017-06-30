@@ -1,7 +1,7 @@
 
 $(document).ready(function(){
 
-	$.extend( $.fn.dataTable.defaults, {
+	/*$.extend( $.fn.dataTable.defaults, {
 		searching: false,
 		ordering:  false,
 		bFilter:false,
@@ -21,15 +21,15 @@ $(document).ready(function(){
 				"sLast": "尾页"
 			}
 		}
-	});
-	
+	});*/
+
 	$('input[type=checkbox],input[type=radio],input[type=file]').uniform();
-	
+
 	//$('select').select2();
-	
+
 	$("span.icon input:checkbox, th input:checkbox").click(function() {
 		var checkedStatus = this.checked;
-		var checkbox = $(this).parents('.widget-box').find('tr td:first-child input:checkbox');		
+		var checkbox = $(this).parents('.widget-box').find('tr td:first-child input:checkbox');
 		checkbox.each(function() {
 			this.checked = checkedStatus;
 			if (checkedStatus == this.checked) {
@@ -41,20 +41,31 @@ $(document).ready(function(){
 		});
 	});
 
+	//=========处理页面的请求===========
 
-	$(".createButton").on("click",function(){
+	/*$(".createButton").on("click",function(){
 		$(".dataList").hide();
 		$(this).hide();
+		//清空表单
+		$('.editForm')[0].reset();
 		$(".dataEdit").show();
 		$(".returnButton").show();
 	});
 
 	$(".returnButton").on("click",function(){
+
+		//发起请求重新获取页面的内容.
+		$.get("/api/tasks",function(tasks){
+			if(tasks && tasks.length){
+				$(".dataList table tbody").html(tasks);
+			}
+		});
 		$(".dataList").show();
 		$(this).hide();
 		$(".dataEdit").hide();
 		$(".createButton").show();
-	})
+	});
+
 
 	$("#monitor").multiselect({
 		buttonText: function(options, select) {
@@ -79,4 +90,74 @@ $(document).ready(function(){
 		}
 	});
 
+	$(".editTask").on("click",function(){
+		var taskUrl = $(this).data("href");
+		$.get(taskUrl,function(editForm){
+			$(".formPanel").html(editForm);
+			$(".dataList").hide();
+			$(".createButton").hide();
+			$(".dataEdit").show();
+			$(".returnButton").show();
+		});
+		return false;
+	});
+
+
+	$(".deleteTask").on("click",function(){
+
+		$.confirm({
+			columnClass: 'span4 confirmbtn',
+			title: '删除任务提示',
+			content: '确定需要删除当前任务么?',
+			buttons:{
+				close:{
+					keys: ['c'],
+					text:'取消',
+					btnClass:'btn btn-danger',
+				},
+				ok:{
+					keys: ['y'],
+					text:'确定',
+					btnClass:'btn btn-info',
+					action: function () {
+						alert("删除成功!");
+					}
+				}
+			},
+			offsetTop:50,
+		});
+		return false;
+	})
+
+	$(".enableTask").on("click",function(){
+
+		$.confirm({
+			columnClass: 'span4 confirmbtn',
+			title: '启动/暂停任务提示',
+			content: '确定需要启动/暂停当前任务么?',
+			buttons:{
+				close:{
+					keys: ['c'],
+					text:'取消',
+					btnClass:'btn btn-danger',
+				},
+				ok:{
+					keys: ['y'],
+					text:'确定',
+					btnClass:'btn btn-info',
+					action: function () {
+						alert("成功!");
+					}
+				}
+			},
+			offsetTop:50,
+		});
+		return false;
+	})*/
+
+	$(".logout").on("click",function(){
+        $.get("/api/logout",function(tasks){
+
+        });
+    });
 });

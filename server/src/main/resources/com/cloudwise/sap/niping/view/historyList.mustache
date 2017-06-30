@@ -1,0 +1,28 @@
+{{#result}}
+    {{#data}}
+        {{#data}}
+        <tr class="data odd" role="row">
+            <td>{{startTimeString}}</td>
+            <td>{{endTimeString}}</td>
+            <td>{{collectedTimeString}}</td>
+            <td class="name">{{typeString}}</td>
+            <td>{{av2String}}</td>
+            {{#isUsable}}
+                <td class="green">
+                    可用
+                </td>
+            {{/isUsable}}
+            {{^isUsable}}
+                <td class="red">
+                    <input id="errmsg" value="{{errmsg}}" type="hidden" />
+                    <a style="color:red" href="#">不可用</a>
+                </td>
+            {{/isUsable}}
+            <td>{{errno}}</td>
+            <td>{{tr2String}}</td>
+        </tr>
+        {{/data}}
+    {{/data}}
+{{/result}}
+
+

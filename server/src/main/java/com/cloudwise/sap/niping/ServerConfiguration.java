@@ -40,4 +40,9 @@ public class ServerConfiguration extends Configuration {
     @NotNull
     @JsonProperty("sap")
     private SapConfiguration sapConfig;
+
+    @Valid
+    @NotNull
+    @JsonProperty("job")
+    private JobConfiguration jobConfig;
 }

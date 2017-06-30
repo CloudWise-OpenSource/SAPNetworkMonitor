@@ -6,6 +6,8 @@ import com.cloudwise.sap.niping.exception.NiPingException;
 import io.dropwizard.views.View;
 import lombok.Getter;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 
 public class ResultView extends View {
@@ -14,12 +16,12 @@ public class ResultView extends View {
     private final RestfulReturnResult result;
 
     public ResultView(Result result, Object data, String templateName) {
-        super(templateName);
+        super(templateName, Charset.forName(StandardCharsets.UTF_8.name()));
         this.result = new RestfulReturnResult(result, data);
     }
 
     public ResultView(NiPingException exception, Object data, String templateName) {
-        super(templateName);
+        super(templateName, Charset.forName(StandardCharsets.UTF_8.name()));
         this.result = new RestfulReturnResult(exception, data);
     }
 }

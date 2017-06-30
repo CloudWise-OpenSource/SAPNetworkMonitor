@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>SAP Network Monitoring</title>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" href="/vendor/bootstrap/bootstrap.min.css" />
+	<link rel="stylesheet" href="/vendor/bootstrap/bootstrap-responsive.min.css" />
+	<!--<link href="https://cdn.bootcss.com/bootstrap-modal/2.2.6/css/bootstrap-modal.min.css" rel="stylesheet">-->
+	<!--<link href="https://cdn.bootcss.com/bootstrap-modal/2.2.6/css/bootstrap-modal-bs3patch.min.css" rel="stylesheet">-->
+	<link rel="stylesheet" href="/vendor/bootstrap/bootstrap-multiselect.css">
+    <link rel="stylesheet" href="/vendor/confirm/jquery-confirm.min.css" />
+    <!--<link rel="stylesheet" href="./static/css/uniform.css" />-->
+	<!--<link rel="stylesheet" href="./vendor/bootstrap/select2.css" />-->
+	<!--<link rel="stylesheet" href="./vendor/bootstrap/bootstrap-switch.min.css" />-->
+	<link rel="stylesheet" href="/static/css/matrix-style.css" />
+	<link rel="stylesheet" href="/static/css/matrix-media.css" />
+	<link href="/vendor/font-awesome/css/font-awesome.css" rel="stylesheet" />
+
+</head>
+<body>
+
+<!--Header-part-->
+{{>topHeader}}
+<!--close-Header-part-->
+
+<!--sidebar-menu-->
+<div id="sidebar"> </div>
+
+<div id="content">
+	<div id="content-header">
+		<div id="breadcrumb"> <a href="/" title="返回首页" class="tip-bottom"><i class="icon-home"></i> 首页</a> <a href="/api/monitors" class="current">监测点</a> </div>
+		<!--<h1>监控任务列表</h1>-->
+	</div>
+	<div class="container-fluid">
+		<!--<hr>-->
+		<div class="panel-header">
+			监测点信息
+		</div>
+		<div class="row-fluid">
+			<div class="span12 dataList">
+				<div class="widget-box fullWidth">
+					<div class="widget-content nopadding">
+						<table class="table table-bordered data-table">
+							<thead>
+							<tr>
+								<th>监测点</th>
+								<th>状态</th>
+								<th>IP地址</th>
+								<th>国家</th>
+								<th>省份</th>
+								<th>城市</th>
+								<th>运营商</th>
+                                <th>版本</th>
+								<th>详情</th>
+							</tr>
+							</thead>
+                            <tbody>
+                                {{>monitorList}}
+                            </tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<!--Footer-part-->
+{{>bottomFotter}}
+<!--end-Footer-part-->
+<script type="text/javascript" src="/static/js/matrix.monitor.js"></script>
+<script type="text/javascript">
+
+</script>
+
+</body>
+</html>

@@ -9,7 +9,7 @@ database:
   driverClass: com.mysql.jdbc.Driver
   url: 'jdbc:mysql://localhost:3306/niping_db?useUnicode=true&characterEncoding=utf8&connectionCollation=utf8_general_ci'
   user: root
-  password: 'Bin123456'
+  password: 'root'
   properties:
       charSet: UTF-8
   maxWaitForConnection: 1s
@@ -43,4 +43,13 @@ views:
 sap:
   monitor:
     #unit: second
-    lostTime: 180
+    lostTime: 30
+job:
+  roundTripTimeB: 1
+  roundTripTimeL: 10
+  bandwidthB: 100000
+  bandwidthL: 10
+  stabilityB: 200
+  stabilityL: 36000
+  stabilityD: 1000
+  idleTimeoutD: 36000
