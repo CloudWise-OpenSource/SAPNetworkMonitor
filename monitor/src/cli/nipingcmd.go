@@ -19,13 +19,11 @@ var (
 func GetNipingT(serverInfo map[string] string,nipingtInterval int64) (string) {
 	nipingT := ""
 	if time.Now().Unix() - lastNipingT > nipingtInterval {
-		cmd,err := exec.Command(serverInfo["nipingPath"],"-t").Output()
+		_,err := exec.Command(serverInfo["nipingPath"],"-t").Output()
 		if err != nil {
-			nipingT := "Configuration Present Error: cannot find niping, your niping path is " + serverInfo["nipingPath"]
-			log.Println(nipingT)
+			log.Println(err.Error())
 			return nipingT
-		}
-		if cmd != nil {
+		}else {
 			nipingT = "OK"
 			return nipingT
 		}
@@ -39,6 +37,7 @@ func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_arg
 	monitorResult := new(models.MonitorResult)
 	startTime := time.Now().Unix()
 	cmd := exec.Command(nipingPath,"-c","-H",router,"-B",strconv.Itoa(b_args),"-L",strconv.Itoa(l_args),"-D",strconv.Itoa(d_args))
+	
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		fmt.Println("StdoutPipe: " + err.Error())
@@ -60,8 +59,11 @@ func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_arg
 			errArray := strings.Split(string(bytesErr),"\r")
 			for i:=0;i< len(errArray);i++ {
 				if len(strings.Fields(errArray[i])) == 3 {
-					if strings.Fields(errArray[i])[1] == "VERSION" {
+					if strings.Fields(errArray[i])[1] == "ERROR" {
 						monitorResult.Errno = strings.Fields(errArray[i])[2]
+						monitorResult.Errmsg = string(bytesErr)
+					}else {
+						monitorResult.Errno = "-1"
 						monitorResult.Errmsg = string(bytesErr)
 					}
 				}
@@ -70,8 +72,11 @@ func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_arg
 			errArray := strings.Split(string(bytesErr),"\n")
 			for i:=0;i< len(errArray);i++ {
 				if len(strings.Fields(errArray[i])) == 3 {
-					if strings.Fields(errArray[i])[1] == "VERSION" {
+					if strings.Fields(errArray[i])[1] == "ERROR" {
 						monitorResult.Errno = strings.Fields(errArray[i])[2]
+						monitorResult.Errmsg = string(bytesErr)
+					}else {
+						monitorResult.Errno = "-1"
 						monitorResult.Errmsg = string(bytesErr)
 					}
 				}
