@@ -36,7 +36,7 @@ func HeartBeat(nipingtInterval int64,serverInfo map[string] string,monitorInfo m
 	monitorJob := new(models.MonitorJob)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsons))
 	if err != nil {
-		fmt.Println("Error:", err)
+		fmt.Println("Error:", err.Error())
 	}
 	req.Header.Set("Authorization","Bearer " +  monitorInfo["accessToken"])
 	req.Header.Set("Content-Type","application/json")

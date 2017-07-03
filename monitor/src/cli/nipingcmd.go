@@ -39,7 +39,6 @@ func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_arg
 	monitorResult := new(models.MonitorResult)
 	startTime := time.Now().Unix()
 	cmd := exec.Command(nipingPath,"-c","-H",router,"-B",strconv.Itoa(b_args),"-L",strconv.Itoa(l_args),"-D",strconv.Itoa(d_args))
-	
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		fmt.Println("StdoutPipe: " + err.Error())
