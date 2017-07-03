@@ -19,15 +19,17 @@ var (
 func GetNipingT(serverInfo map[string] string,nipingtInterval int64) (string) {
 	nipingT := ""
 	if time.Now().Unix() - lastNipingT > nipingtInterval {
-		_,err := exec.Command(serverInfo["nipingPath"],"-t").Output()
+		cmd,err := exec.Command(serverInfo["nipingPath"],"-t").Output()
 		if err != nil {
 			log.Println(err.Error())
 			return nipingT
 		}else {
-			nipingT = "OK"
+			nipingT = string(cmd)
+			lastNipingT = time.Now().Unix()
 			return nipingT
 		}
-		lastNipingT = time.Now().Unix()
+	}else {
+		nipingT = ""
 	}
 	return nipingT
 }

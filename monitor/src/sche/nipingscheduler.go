@@ -4,7 +4,6 @@ import (
 	"github.com/jasonlvhit/gocron"
 	"SAPNetworkMonitor/monitor/src/cli"
 	"SAPNetworkMonitor/monitor/src/models"
-	"strconv"
 )
 
 var(
@@ -17,7 +16,7 @@ type Cron struct {
 
 func StartJob(monitorJob models.MonitorJob,serverInfo map[string] string,taskMap map[string] string) {
 	url := serverInfo["dataServerUrl"] + "/api/databus/monitor/" + monitorJob.Data.MonitorId + "/result"
-	interval, _ := strconv.ParseUint(serverInfo["nipingtInterval"], 0, 64)
+	interval := uint64(monitorJob.Data.Interval)
 	cronJob[monitorJob.Data.TaskId] = new(Cron)
 	go func(){
 		s := gocron.NewScheduler()

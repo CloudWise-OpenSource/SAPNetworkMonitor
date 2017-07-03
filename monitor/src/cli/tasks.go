@@ -94,10 +94,12 @@ func TimeoutTask(url string,monitorJob models.MonitorJob,serverInfo map[string] 
 		log.Println("Start TimeoutTask")
 		if _,ok := taskMap[monitorJob.Data.TaskId];ok {
 			timeoutFlag = false
+			startTime := time.Now().Unix()
 			monitorResult_idle := NipingCMD(2,monitorJob.Data.TaskId,monitorJob.Data.JobDesc.Router,serverInfo["nipingPath"],
-				monitorJob.Data.JobDesc.BandwithB,monitorJob.Data.JobDesc.BandwithL,monitorJob.Data.JobDesc.IdleTimeoutD,2)
-			monitorResult := models.MonitorResult{monitorResult_idle.Av2,monitorResult_idle.Avg,monitorResult_idle.EndTime,monitorResult_idle.Errmsg,
-												 monitorResult_idle.Errno,monitorResult_idle.Max,monitorResult_idle.Min,monitorResult_idle.StartTime,monitorResult_idle.TaskId,
+				monitorJob.Data.JobDesc.BandwithB,1,monitorJob.Data.JobDesc.IdleTimeoutD,2)
+			endTime := time.Now().Unix()
+			monitorResult := models.MonitorResult{monitorResult_idle.Av2,monitorResult_idle.Avg,endTime,monitorResult_idle.Errmsg,
+												 monitorResult_idle.Errno,monitorResult_idle.Max,monitorResult_idle.Min,startTime,monitorResult_idle.TaskId,
 												 monitorResult_idle.Tr,monitorResult_idle.Tr2,2,monitorJob.Data.MonitorId}
 			log.Println(monitorResult)
 			monitorResultJson, _ := json.Marshal(monitorResult)
