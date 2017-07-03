@@ -22,14 +22,11 @@ func GetNipingT(serverInfo map[string] string,nipingtInterval int64) (string) {
 		cmd,err := exec.Command(serverInfo["nipingPath"],"-t").Output()
 		if err != nil {
 			log.Println(err.Error())
-			return nipingT
+			nipingT = err.Error()
 		}else {
 			nipingT = string(cmd)
-			lastNipingT = time.Now().Unix()
-			return nipingT
 		}
-	}else {
-		nipingT = ""
+		lastNipingT = time.Now().Unix()
 	}
 	return nipingT
 }
