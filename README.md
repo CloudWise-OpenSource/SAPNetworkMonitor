@@ -8,6 +8,14 @@
 
 ## 编译 
 
+#### 编译环境
+
+​	*Java SE Development Kit 8* 
+
+​	*Maven* 
+
+#### 编译步骤
+
 ```shell
 git clone git@github.com:CloudWise-OpenSource/SAPNetworkMonitor.git
 
