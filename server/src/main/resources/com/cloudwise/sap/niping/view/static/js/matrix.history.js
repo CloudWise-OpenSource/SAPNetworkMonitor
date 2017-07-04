@@ -678,6 +678,17 @@ $(function(){
                         //重新调用dataTable渲染一下。
                         $('.historytable').dataTable(tableOptions);
 
+                        //响应结果处理
+                        $(".historytable").find("td.name").each(function(i,item){
+                            //如果是超时监测，则响应时间和带宽应该没有数据
+                            if($(item).data("typeid") == "2"){
+                                $(item).siblings("td").each(function(i,sib){
+                                    if($(sib).hasClass("av2String") || $(sib).hasClass("tr2String")){
+                                        $(sib).html("-");
+                                    }
+                                });
+                            }
+                        });
                         $(".historytable").find("td.red").on("click","a",function(){
                             var inputArea = $(this).parent().find("input")[0];
 
