@@ -8,6 +8,8 @@ import com.cloudwise.sap.niping.common.vo.*;
 import com.cloudwise.sap.niping.exception.NiPingException;
 import com.cloudwise.sap.niping.filter.NiPingAuthFilter;
 import com.cloudwise.sap.niping.service.MonitorResultService;
+import com.cloudwise.sap.niping.service.MonitorService;
+import com.cloudwise.sap.niping.service.TaskService;
 import com.cloudwise.sap.niping.view.HistoryListView;
 import com.cloudwise.sap.niping.view.HistoryView;
 import io.dropwizard.jersey.sessions.Session;
@@ -30,6 +32,12 @@ import static com.cloudwise.sap.niping.common.constant.Result.*;
 public class HistoryResource {
 
     @Inject
+    private TaskService taskService;
+
+    @Inject
+    private MonitorService monitorService;
+
+    @Inject
     private MonitorResultService monitorResultService;
 
     @GET
@@ -45,7 +53,7 @@ public class HistoryResource {
         String accountId = NiPingAuthFilter.getAccountId(session);
         List<Task> tasks = null;
         try {
-            tasks = monitorResultService.listTasks(accountId);
+            tasks = taskService.listTasks(accountId).orElseGet(null);
         } catch (NiPingException e) {
             e.printStackTrace();
             return new RestfulReturnResult(Error, null);

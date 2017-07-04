@@ -273,11 +273,25 @@ public class TaskService {
         }
     }
 
-    public Optional<List<Task>> listTasks(String accountId) throws NiPingException {
+    public Optional<List<Task>> listTasksForListPage(String accountId) throws NiPingException {
         Optional<List<Task>> tasks = Optional.empty();
         try {
             tasks = Optional.ofNullable(taskDao.selectByAccountId(accountId, Task.Status.deleted.getStatus(), new Date(System
                     .currentTimeMillis() - 60 * 60 * 1000), "<>", ">="));
+            if (tasks.isPresent() && log.isDebugEnabled()) {
+                log.debug("select account {} tasks {}", accountId, Arrays.toString(tasks.get().toArray(new Task[]{})));
+            }
+        } catch (DBIException e) {
+            log.error("list tasks error: {}", ExceptionUtils.getMessage(e));
+            throw new NiPingException(DBError);
+        }
+        return tasks;
+    }
+
+    public Optional<List<Task>> listTasks(String accountId) throws NiPingException {
+        Optional<List<Task>> tasks = Optional.empty();
+        try {
+            tasks = Optional.ofNullable(taskDao.selectByAccountId(accountId));
             if (tasks.isPresent() && log.isDebugEnabled()) {
                 log.debug("select account {} tasks {}", accountId, Arrays.toString(tasks.get().toArray(new Task[]{})));
             }

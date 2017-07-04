@@ -27,7 +27,7 @@
             <td>{{#monitor}}{{city}}{{/monitor}}</td>
             <td>{{#monitor}}{{isp}}{{/monitor}}</td>
             <td class="operate">
-                <a alt="" href="/api/history"><i class="icon-2x icon-zoom-in"></i>查看</a>
+                <a alt="" href="/api/history" data-monitorid={{#monitor}}{{monitorId}}{{/monitor}}><i class="icon icon-zoom-in"></i>查看</a>
             </td>
         </tr>
     {{/data}}

@@ -16,13 +16,13 @@ public class TaskMapper implements ResultSetMapper<Task> {
     public Task map(int index, ResultSet r, StatementContext ctx) throws SQLException {
         Task task = Task.builder()
                 .taskId(r.getString("TASK_ID"))
-                .monitorId(r.getString("MONITOR_ID"))
                 .name(r.getString("NAME"))
                 .interval(r.getInt("INTERVAL"))
                 .configJson(r.getString("CONFIG_JSON"))
                 .status(r.getInt("STATUS")).build();
 
         try {
+            task.setMonitorId(r.getString("MONITOR_ID"));
             task.setMonitorName(r.getString("MONITOR_NAME"));
         }
         catch (Exception e) {
@@ -30,7 +30,8 @@ public class TaskMapper implements ResultSetMapper<Task> {
         }
 
         try {
-            task.setResultId(r.getString("RESULT_ID"));
+            task.setResultMonitorId(r.getString("RESULT_MONITOR_ID"));
+            task.setErrno(r.getInt("ERRNO"));
         }
         catch (Exception e) {
             log.debug(ExceptionUtils.getMessage(e));

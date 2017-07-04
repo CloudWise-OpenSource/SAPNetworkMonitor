@@ -52,4 +52,4 @@ job:
   stabilityB: 200
   stabilityL: 36000
   stabilityD: 1000
-  idleTimeoutD: 36000
+  idleTimeoutD: 3600000

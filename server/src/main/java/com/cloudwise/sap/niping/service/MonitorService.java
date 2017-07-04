@@ -171,4 +171,32 @@ public class MonitorService {
             .retryOn(NiPingException.class)
             .withDelay(5, TimeUnit.SECONDS)
             .withMaxRetries(3);
+
+
+    public String condition(String country, String province, String city) {
+        String condition = "";
+        if (StringUtils.isNotBlank(country) || StringUtils.isNotBlank(province) || StringUtils.isNotBlank(city)) {
+            StringBuilder conditionBuilder = new StringBuilder();
+            if (StringUtils.isNotBlank(country)) {
+                conditionBuilder.append(" AND COUNTRY = '" + country + "' ");
+            }
+            if (StringUtils.isNotBlank(province)) {
+                conditionBuilder.append(" AND province = '" + province + "' ");
+            }
+            if (StringUtils.isNotBlank(city)) {
+                conditionBuilder.append(" AND CITY = '" + city + "' ");
+            }
+            condition = conditionBuilder.toString();
+        }
+        return condition;
+    }
+
+    public List<Monitor> listMonitors(String accountId, String taskId, String country, String province, String city) throws NiPingException {
+        try {
+            return monitorDao.selectMonitors(accountId, taskId, condition(country, province, city));
+        } catch (DBIException e) {
+            log.error("list monitors by accountId {} taskId {} country {} province {} city {} error: {}", accountId, taskId, country, province, city, ExceptionUtils.getMessage(e));
+            throw new NiPingException(DBError);
+        }
+    }
 }

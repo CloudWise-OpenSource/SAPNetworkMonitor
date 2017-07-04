@@ -3,7 +3,7 @@
         <tr class="gradeX">
             <td class="taskName">
                 <span class="color" data-colorId={{status}}><i class="icon-stop"></i></span>
-                {{name}}
+                <a class="redirectToAnalysis" data-id={{taskId}} >{{name}}</a>
             </td>
             <td>
                 {{#jobDesc}}
@@ -13,15 +13,7 @@
             <td>{{interval}}</td>
             <td  data-ids="monitorIds">{{monitorNames}}</td>
             <td class="operate">
-                <!--<input class="enableTask tip-bottom"  data-href="{{taskId}}" data-status={{status}} type="checkbox" checked="checked" data-toggle="switch"  data-on-text="开启" data-off-text="暂停"/>-->
-
-                <!--<a title="暂停/开启" class="enableTask tip-bottom" href=""><i class="icon-2x icon-zoom-in"></i></a>-->
-                <!--<a title="" class="enableTask tip-bottom" href="" data-href="{{taskId}}" data-status={{status}}><i class="icon-2x"></i></a>-->
-                <!--<a title="暂停" class="enableTask tip-bottom" href=""><i class="icon-2x  icon-ban-circle"></i></a>-->
-                <!--<a title="编辑" class="editTask tip-bottom" data-href="{{taskId}}"><i class="icon-2x icon-edit"></i></a>-->
-                <!--<a title="编辑" class="editTask tip-bottom btn btn-info" data-href="{{taskId}}">编辑</a>-->
-                <!--<a title="删除" class="deleteTask tip-bottom" data-href="{{taskId}}"><i class="icon-2x icon-remove"></i></a>-->
-                {{#isAvailable}}
+               {{#isAvailable}}
                     <input class="enableTask tip-bottom"  data-href="{{taskId}}" data-status={{status}} type="checkbox" checked="checked" data-toggle="switch"  data-on-text="开启" data-off-text="暂停"/>
                  {{/isAvailable}}
                 {{^isAvailable}}

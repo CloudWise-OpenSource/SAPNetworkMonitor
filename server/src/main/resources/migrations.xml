@@ -205,6 +205,9 @@
             <column name="COLLECTED_TIME"/>
             <column name="MONITOR_ID"/>
         </createIndex>
+        <createIndex indexName="IDX_COLLECTED_TIME" tableName="SNM_NIPING_RESULT">
+            <column name="COLLECTED_TIME"/>
+        </createIndex>
         <addForeignKeyConstraint baseColumnNames="MONITOR_ID" baseTableName="SNM_MONITOR_TASK" constraintName="FK_MONITOR_TASK_MONITOR_ID" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="MONITOR_ID" referencedTableName="SNM_MONITOR"/>
         <addForeignKeyConstraint baseColumnNames="TASK_ID" baseTableName="SNM_MONITOR_TASK" constraintName="FK_MONITOR_TASK_TASK_ID" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="TASK_ID" referencedTableName="SNM_TASK"/>
         <insert tableName="SNM_USER">

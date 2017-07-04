@@ -40,7 +40,7 @@ public class IndexResource {
     @Produces(MediaType.TEXT_HTML)
     public IndexView gotoIndex(@Session HttpSession session) {
         try {
-            return new IndexView(SUCCESS, taskConverter.convert(taskService.listTasks(NiPingAuthFilter.getAccountId(session))).orElse(null));
+            return new IndexView(SUCCESS, taskConverter.convert(taskService.listTasksForListPage(NiPingAuthFilter.getAccountId(session))).orElse(null));
         } catch (NiPingException e) {
             return new IndexView(e, null);
         }

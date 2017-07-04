@@ -82,3 +82,11 @@ function isEmptyObject(obj) {
 
     return true;
 }
+
+/**
+* 删除左右两端的空格
+*/
+function trim(str)
+{
+     return str.replace(/(^\s*)|(\s*$)/g, '');
+}

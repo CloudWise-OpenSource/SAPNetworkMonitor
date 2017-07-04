@@ -31,7 +31,7 @@ public interface MonitorNiPingResultDao {
     @SqlQuery("SELECT TMP.*, M.MONITOR_ID, M.NAME, M.IP, M.COUNTRY, M.PROVINCE, M.CITY, M.ISP FROM " +
             "(SELECT TASK_ID, AV2, TR2, ERRNO, MONITOR_ID FROM SNM_NIPING_RESULT R " +
             "WHERE R.ACCOUNT_ID = :accountId AND R.TASK_ID = :taskId AND TYPE = :type AND NOT EXISTS(SELECT 1 FROM SNM_NIPING_RESULT WHERE TASK_ID = R" +
-            ".TASK_ID AND COLLECTED_TIME <g> R.COLLECTED_TIME AND  ACCOUNT_ID = :accountId AND TASK_ID = :taskId AND TYPE = :type)) AS TMP " +
+            ".TASK_ID AND MONITOR_ID = R.MONITOR_ID AND COLLECTED_TIME <g> R.COLLECTED_TIME AND  ACCOUNT_ID = :accountId AND TASK_ID = :taskId AND TYPE = :type)) AS TMP " +
             "INNER JOIN SNM_MONITOR M ON M.MONITOR_ID = TMP.MONITOR_ID")
     @RegisterMapper(MonitorNiPingResultMapper.class)
     List<MonitorNiPingResult> selectByTaskId(@Bind("accountId") String accountId, @Bind("taskId") String taskId, @Bind("type") int type, @Define("g") String g);

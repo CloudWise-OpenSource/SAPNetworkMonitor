@@ -1,8 +1,6 @@
 
 $(document).ready(function(){
 
-	
-	
 	// === Sidebar navigation === //
 	
 	$('.submenu > a').click(function(e)
@@ -155,6 +153,14 @@ $(document).ready(function(){
 			$('#lightbox').slideDown(500);
 		}
 		
+	});
+
+
+	$(".logout").on("click",function(){
+	    localStorage.setItem(ENV.storage.task, '');
+	    localStorage.setItem(ENV.storage.monitor, '');
+
+	    return true;
 	});
 	
 });

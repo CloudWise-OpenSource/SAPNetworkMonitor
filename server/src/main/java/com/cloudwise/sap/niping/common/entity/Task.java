@@ -38,7 +38,9 @@ public class Task extends AbstractEntity {
     @JsonIgnore
     private String monitorName;
     @JsonIgnore
-    private String resultId;
+    private String resultMonitorId;
+    @JsonIgnore
+    private int errno;
 
     public String getName() {
         return name;

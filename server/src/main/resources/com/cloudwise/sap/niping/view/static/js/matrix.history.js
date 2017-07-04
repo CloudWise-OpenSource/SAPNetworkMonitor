@@ -9,6 +9,24 @@ $(function(){
      getSideBar('历史记录');
 
     //获取条件列表
+
+    //切换监测点关联国家、省份、城市
+    function changeLocation(monitorId){
+        if(isEmpty(monitorId)) return null;
+        var country = province = city = null;
+
+        $("#monitorList").find("option").each(function(index,item){
+            if($(item).val() == monitorId){
+                country = $(item).data("country");
+                province = $(item).data("province");
+                city = $(item).data("city");
+            }
+        });
+        if(country) $("#country").val(country);
+        if(province) $("#province").val(province);
+        if(city) $("#city").val(city);
+
+    }
     //获取任务
     var getHistoryTask = function(dtd){
 　　　　 var dtd = $.Deferred();
@@ -47,7 +65,7 @@ $(function(){
                         //清空列表
                         $("#monitorList").html('');
                         monitors.forEach(function(monitor){
-                            $("#monitorList").append("<option data-ip="+ monitor.ip +" value="+monitor.monitorId+">"+monitor.name+"</option>");
+                            $("#monitorList").append("<option data-country="+monitor.country+" data-province="+monitor.province+" data-city="+monitor.city+" data-ip="+ monitor.ip +" value="+monitor.monitorId+">"+monitor.name+"</option>");
                         });
                         if(monitors && monitors.length){
                             $(".ipInfo").html(monitors[0].ip);
@@ -228,8 +246,31 @@ $(function(){
 
     //任务和监测点加载完成以后，执行请求。
     getHistoryTask().then(function(){
+        //判断本地存储，选中值
+        var taskId = localStorage.getItem(ENV.storage.task);
+        if(!isEmpty(taskId) && taskId.length){
+            $("#taskList").find("option").each(function(index,item){
+                if($(item).val() == taskId){
+                    $("#taskList").val(taskId);
+                }
+            });
+        }
+
         //获取任务的监测点列表
         getHistoryMonitors().then(function(){
+            //判断本地存储，选中值
+            var monitorId = localStorage.getItem(ENV.storage.monitor);
+            if(!isEmpty(monitorId) && monitorId.length){
+                $("#monitorList").find("option").each(function(index,item){
+                    if($(item).val() == monitorId){
+                        $("#monitorList").val(monitorId);
+                    }
+                });
+            }
+
+            //地域都加载完成以后，设置选中
+//            changeLocation($("#monitorList").val());
+
             getHistoryData().then(function(res){
                 if(res && res.code == 1000){
                     renderHistoryData(res.data);
@@ -264,6 +305,9 @@ $(function(){
         if(options.length){
             $(".ipInfo").html($(options[target]).data("ip") || '');
         }
+        if($(this).val()){
+            localStorage.setItem(ENV.storage.monitor, $(this).val());
+        }
 
         flushHistoryData();
     });
@@ -273,17 +317,30 @@ $(function(){
     });
 
     $("#taskList").on("change",function(){
-        flushHistoryData();
+        if($(this).val()){
+            localStorage.setItem(ENV.storage.task, $(this).val());
+        }
+
+        getHistoryMonitors().then(function(){
+
+            flushHistoryData();
+        });
     });
 
     $("#country").on("change",function(){
-        getHistoryMonitors();
+        getHistoryMonitors().then(function(){
+            flushHistoryData();
+        });
     });
     $("#province").on("change",function(){
-        getHistoryMonitors();
+        getHistoryMonitors().then(function(){
+            flushHistoryData();
+        });
     });
     $("#city").on("change",function(){
-        getHistoryMonitors();
+        getHistoryMonitors().then(function(){
+            flushHistoryData();
+        });
     });
 
     //所有图表的配置文件函数
@@ -576,6 +633,7 @@ $(function(){
                        "ordering":  false,
                        "bFilter":false,
                        "bLengthChange":false,
+                       "bInfo":false,
                        "oLanguage": {//语言设置
                            "sLengthMenu": "",
                            "sZeroRecords": "没有历史数据",
@@ -614,7 +672,7 @@ $(function(){
                   　　dttable.fnClearTable(); //清空一下table
                   　　dttable.fnDestroy(); //还原初始化了的datatable
                   }
-                  if(res && res.length){
+                  if(res && trim(res).length){
                         $(".monitorHistory").find("table tbody").html(res);
                         $(".historytable tbody").html(res);
                         //重新调用dataTable渲染一下。
@@ -626,7 +684,7 @@ $(function(){
                             var value = $(inputArea).val();
                             $.dialog({
                                 title: '错误信息',
-                                content: ''+value,
+                                content: '<pre>'+value + '</pre>',
                             });
 
                             return false;

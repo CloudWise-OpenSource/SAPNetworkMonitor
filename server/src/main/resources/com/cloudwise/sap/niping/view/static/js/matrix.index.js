@@ -6,12 +6,16 @@ $(function(){
         //获取左侧列表，并生成导航
         getSideBar('监控任务');
 
+        //进入页面以后，直接用localstorage设置默认的数据
+        localStorage.setItem(ENV.storage.task, '');
+        localStorage.setItem(ENV.storage.monitor, '');
+
         $.extend($.fn.dataTable.defaults, {
             searching: false,
             ordering:  false,
             bFilter:false,
             bLengthChange:false,
-
+            bInfo:false,
         });
 
         var tableOptions = {
@@ -314,6 +318,16 @@ $(function(){
 
                 }
             });
+
+        });
+
+
+        //查看任务的数据分析
+        $(".dataList").on("click",".redirectToAnalysis", function(){
+            //设置全局变量
+            localStorage.setItem(ENV.storage.task, $(this).data("id"));
+            //发起跳转
+            window.location.href = ENV.location.analysis;
 
         });
 

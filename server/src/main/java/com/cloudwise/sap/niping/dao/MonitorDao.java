@@ -7,6 +7,7 @@ import org.skife.jdbi.v2.sqlobject.Bind;
 import org.skife.jdbi.v2.sqlobject.BindBean;
 import org.skife.jdbi.v2.sqlobject.SqlQuery;
 import org.skife.jdbi.v2.sqlobject.SqlUpdate;
+import org.skife.jdbi.v2.sqlobject.customizers.Define;
 import org.skife.jdbi.v2.sqlobject.customizers.RegisterMapper;
 import org.skife.jdbi.v2.sqlobject.stringtemplate.UseStringTemplate3StatementLocator;
 import org.skife.jdbi.v2.unstable.BindIn;
@@ -44,4 +45,10 @@ public interface MonitorDao {
             " WHERE ACCOUNT_ID = :accountId")
     @RegisterMapper(MonitorMapper.class)
     List<Monitor> selectAllByAccountId( @Bind("accountId") String accountId);
+
+    @SqlQuery("SELECT SNM_MONITOR.MONITOR_ID, VERSION, ACCOUNT_ID, NAME, COUNTRY, PROVINCE, CITY, ISP, AREA, IP, NIPING_T, STATUS, CREATION_TIME, MODIFIED_TIME FROM SNM_MONITOR INNER JOIN SNM_MONITOR_TASK " +
+            " ON SNM_MONITOR.MONITOR_ID = SNM_MONITOR_TASK.MONITOR_ID" +
+            " WHERE ACCOUNT_ID = :accountId AND TASK_ID = :taskId <condition>")
+    @RegisterMapper(MonitorMapper.class)
+    List<Monitor> selectMonitors(@Bind("accountId") String accountId, @Bind("taskId") String taskId, @Define("condition") String condition);
 }

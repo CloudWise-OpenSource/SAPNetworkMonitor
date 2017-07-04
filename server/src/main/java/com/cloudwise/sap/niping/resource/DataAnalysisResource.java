@@ -1,8 +1,11 @@
 package com.cloudwise.sap.niping.resource;
 
+import com.cloudwise.sap.niping.common.vo.Task;
 import com.cloudwise.sap.niping.exception.NiPingException;
 import com.cloudwise.sap.niping.filter.NiPingAuthFilter;
 import com.cloudwise.sap.niping.service.MonitorResultService;
+import com.cloudwise.sap.niping.service.MonitorService;
+import com.cloudwise.sap.niping.service.TaskService;
 import com.cloudwise.sap.niping.view.AnalysisListView;
 import com.cloudwise.sap.niping.view.AnalysisView;
 import io.dropwizard.jersey.sessions.Session;
@@ -23,8 +26,10 @@ import static com.cloudwise.sap.niping.common.constant.Result.SUCCESS;
 public class DataAnalysisResource {
 
     @Inject
-    private MonitorResultService monitorResultService;
+    private TaskService taskService;
 
+    @Inject
+    private MonitorResultService monitorResultService;
 
     @GET
     @Path("/")
@@ -32,7 +37,7 @@ public class DataAnalysisResource {
     public AnalysisView result(@Session HttpSession session) {
         try {
             String accountId = NiPingAuthFilter.getAccountId(session);
-            return new AnalysisView(SUCCESS, monitorResultService.listTasks(accountId));
+            return new AnalysisView(SUCCESS, taskService.listTasks(accountId));
         } catch (NiPingException e) {
             return new AnalysisView(e, null);
         }

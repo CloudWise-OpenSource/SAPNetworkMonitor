@@ -119,7 +119,7 @@
             </column>
         </createTable>
         <createTable tableName="SNM_TASK">
-            <column name="task_id" type="VARCHAR(25)">
+            <column name="TASK_ID" type="VARCHAR(25)">
                 <constraints nullable="false"/>
             </column>
             <column name="ACCOUNT_ID" type="VARCHAR(25)">
@@ -205,6 +205,9 @@
             <column name="COLLECTED_TIME"/>
             <column name="MONITOR_ID"/>
         </createIndex>
+        <createIndex indexName="IDX_COLLECTED_TIME" tableName="SNM_NIPING_RESULT">
+            <column name="COLLECTED_TIME"/>
+        </createIndex>
         <addForeignKeyConstraint baseColumnNames="MONITOR_ID" baseTableName="SNM_MONITOR_TASK" constraintName="FK_MONITOR_TASK_MONITOR_ID" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="MONITOR_ID" referencedTableName="SNM_MONITOR"/>
         <addForeignKeyConstraint baseColumnNames="TASK_ID" baseTableName="SNM_MONITOR_TASK" constraintName="FK_MONITOR_TASK_TASK_ID" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="TASK_ID" referencedTableName="SNM_TASK"/>
         <insert tableName="SNM_USER">
@@ -214,8 +217,8 @@
             <!-- password is sap118 -->
             <column name="PASSWORD"
                     value="DE42D48DCFADF42C46B0573E311ACB20D4ED0ADE91F8D8714E3B9B834389210CF36D290517E8B5517FEE1721B9EC09E5F28A4AD22860B6EC446AE61F3C5EC8E8" />
-               <column name="PASSWORD_SALT" value="sap998" />
-               <column name="STATUS" value="1" />
+            <column name="PASSWORD_SALT" value="sap998" />
+            <column name="STATUS" value="1" />
             <column name="CREATION_TIME" valueDate="${now}"></column>
             <column name="MODIFIED_TIME" valueDate="${now}"></column>
         </insert>
