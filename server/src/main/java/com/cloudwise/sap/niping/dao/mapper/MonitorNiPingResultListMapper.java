@@ -37,13 +37,13 @@ public class MonitorNiPingResultListMapper implements ResultSetMapper<MonitorNiP
             e.printStackTrace();
         }
 
-        Integer type;
+        int type = 0;
         String typeString = null;
         try {
             type = r.getInt("TYPE");
-            if (type.equals(MonitorNiPingResult.Type.PERFORMANCE.getValue())) {typeString = "时延监测";}
-            else if (type.equals(MonitorNiPingResult.Type.STABILITY.getValue())) {typeString = "稳定性监测";}
-            else if (type.equals(MonitorNiPingResult.Type.IDLE_TIMEOUT.getValue())) {typeString = "超时监测";}
+            if (type == MonitorNiPingResult.Type.PERFORMANCE.getValue()) {typeString = "时延监测";}
+            else if (type == MonitorNiPingResult.Type.STABILITY.getValue()) {typeString = "稳定性监测";}
+            else if (type == MonitorNiPingResult.Type.IDLE_TIMEOUT.getValue()) {typeString = "超时监测";}
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -90,6 +90,7 @@ public class MonitorNiPingResultListMapper implements ResultSetMapper<MonitorNiP
                 .collectedTimeString(collectedTimeString)
                 .startTimeString(startTimeString)
                 .endTimeString(endTimeString)
+                .type(type)
                 .typeString(typeString)
                 .av2String(av2)
                 .isUsable(isUsable)
