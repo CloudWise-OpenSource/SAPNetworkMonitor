@@ -14,6 +14,13 @@ var ENV = (function(){
 
     return {
         DOMAIN: host,   //业务运维平台后端地址
+        storage:{
+            task:'taskId',
+            monitor:'monitorId'
+        },
+        location:{
+            analysis:ANALYSIS,
+        },
         API:{
             GET_TASK_LIST: TASK,
             GET_TASK:TASK,

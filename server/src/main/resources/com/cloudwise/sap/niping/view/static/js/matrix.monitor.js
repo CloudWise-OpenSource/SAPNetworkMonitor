@@ -12,7 +12,7 @@ $(function(){
             var value = $(inputArea).val();
             $.dialog({
                 title: '监测点详情',
-                content: ''+value,
+                content: '<pre>'+value+"</pre>",
             });
 
         });

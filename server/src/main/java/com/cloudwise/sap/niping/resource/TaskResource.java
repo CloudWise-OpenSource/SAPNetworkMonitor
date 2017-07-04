@@ -55,7 +55,7 @@ public class TaskResource {
     @Produces(MediaType.TEXT_HTML)
     public TaskListView listTasks(@Session HttpSession session) {
         try {
-            TaskListView taskListView = new TaskListView(SUCCESS, taskConverter.convert(taskService.listTasks(NiPingAuthFilter
+            TaskListView taskListView = new TaskListView(SUCCESS, taskConverter.convert(taskService.listTasksForListPage(NiPingAuthFilter
                     .getAccountId(session))).orElse(null));
             return taskListView;
         } catch (NiPingException e) {

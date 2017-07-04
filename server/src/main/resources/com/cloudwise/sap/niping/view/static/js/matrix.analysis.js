@@ -12,7 +12,7 @@ $(function(){
             ordering:  false,
             bFilter:false,
             bLengthChange:false,
-
+            bInfo:false,
         });
 
         var tableOptions = {
@@ -88,15 +88,38 @@ $(function(){
             }
             getAnalysisList(params);
         }
+
         //默认加载后的首次获取分析列表
+        //首先处理一下taskd的选中状态
+        var taskId = localStorage.getItem(ENV.storage.task);
+
+        if(!isEmpty(taskId) && taskId.length){
+            $("#taskList").find("option").each(function(index,item){
+                if($(item).val() == taskId){
+                    $("#taskList").val(taskId);
+                }
+            });
+        }
         getAnalysisListByParams();
 
         $("#taskList").on("change",function(){
+                //重置本地的存储taskId
+                if($(this).val()){
+                    localStorage.setItem(ENV.storage.task, $(this).val());
+                }
                 getAnalysisListByParams();
         });
 
         $("#interval").on("change",function(){
                 getAnalysisListByParams();
+        });
+
+        //查看详情链接点击
+        $(".dataList").on("click",".operate a", function(){
+            if($(this).data("monitorid")){
+                localStorage.setItem(ENV.storage.monitor, $(this).data("monitorid"));
+            }
+            window.location.href = $(this).attr("href");
         });
 
 });

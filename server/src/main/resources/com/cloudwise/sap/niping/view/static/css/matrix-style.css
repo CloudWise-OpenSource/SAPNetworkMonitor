@@ -55,6 +55,7 @@ hr{ border-top-color:#dadada;}
 #header .logo{
 	width:50%;
 	float:left;
+	height:46px;
 }
 #header h1 {
 	/*background: url("../img/logo.png") no-repeat scroll 0 0 transparent;*/
@@ -111,6 +112,7 @@ hr{ border-top-color:#dadada;}
 	float:right;
 	z-index: 20;
 	margin: 0;
+	height:46px;
 }
 #user-nav > ul {
 	margin: 0;
@@ -125,7 +127,7 @@ hr{ border-top-color:#dadada;}
 	padding: 0; border-left: 1px solid #2e363f; border-right: 1px solid #000;
 }
 #user-nav > ul > li > a {
-	padding:9px 10px;
+	padding:12px 10px;
 	display: block;
 	font-size: 11px;
 }
@@ -1620,6 +1622,7 @@ div.dataTables_wrapper .ui-widget-header {
 
 .table td{
 	text-align: center;
+	vertical-align: middle;
 }
 
 .data-table th,.data-table td{
@@ -1803,4 +1806,8 @@ td.operate a{
 
 .jconfirm-box-container{
     margin-top:50px;
+}
+
+.redirectToAnalysis:hover{
+    text-decoration:underline;
 }
