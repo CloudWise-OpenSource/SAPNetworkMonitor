@@ -5,8 +5,8 @@
             <td>{{startTimeString}}</td>
             <td>{{endTimeString}}</td>
             <td>{{collectedTimeString}}</td>
-            <td class="name">{{typeString}}</td>
-            <td>{{av2String}}</td>
+            <td class="name" data-typeid={{type}}>{{typeString}}</td>
+            <td class="av2String">{{av2String}}</td>
             {{#isUsable}}
                 <td class="green">
                     可用
@@ -19,7 +19,7 @@
                 </td>
             {{/isUsable}}
             <td>{{errno}}</td>
-            <td>{{tr2String}}</td>
+            <td class="tr2String">{{tr2String}}</td>
         </tr>
         {{/data}}
     {{/data}}
