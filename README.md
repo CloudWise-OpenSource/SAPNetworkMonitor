@@ -45,7 +45,7 @@ mvn clean install -Dmaven.test.skip=true
 
 ​	*Java SE Runtime Environment 8* 
 
-​	*MySQL* 
+​	*MySQL* (推荐5.6)
 
 #### 安装步骤(linux)
 
