@@ -46,7 +46,7 @@ public class TaskConverter {
                             taskVO.setStatus(Task.Status.disable.getStatus());
                         }
                         else {
-                            List<com.cloudwise.sap.niping.common.entity.Task> withResultTasks = value.stream().filter((t) -> {return t.getResultMonitorId() != null;}).collect(Collectors.toList());
+                            List<com.cloudwise.sap.niping.common.entity.Task> withResultTasks = value.stream().filter((t) -> {return t.getResultId() != null;}).collect(Collectors.toList());
                             long withResultTasksCount = withResultTasks.size();
                             if (withResultTasksCount == 0) {
                                 taskVO.setStatus(Task.Status.available.getStatus());

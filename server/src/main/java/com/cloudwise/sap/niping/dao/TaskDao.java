@@ -46,16 +46,28 @@ public interface TaskDao {
             " WHERE SNM_MONITOR_TASK.MONITOR_ID = :monitorId AND SNM_MONITOR_TASK.TASK_ID IN (<runningTaskIds>) AND SNM_TASK.STATUS = :taskEnableStatus")
     List<String> getAllTaskIdsInRunningTaskIds(@Bind("monitorId") String monitorId, @BindIn("runningTaskIds") List<String> runningTaskIds, @Bind("taskEnableStatus") int taskEnableStatus) ;
 
-    @SqlQuery("SELECT *, RES.MONITOR_ID AS RESULT_MONITOR_ID, RES.ERRNO FROM (SELECT T.TASK_ID, MT.MONITOR_ID, M.NAME AS MONITOR_NAME, T.ACCOUNT_ID, T.NAME, TASK_INTERVAL AS 'INTERVAL', CONFIG_JSON, T.STATUS, T.CREATION_TIME, T.MODIFIED_TIME FROM SNM_TASK T " +
+    @SqlQuery("SELECT *, RESULT.ID AS RESULT_ID, RESULT.ERRNO FROM (SELECT T.TASK_ID, MT.MONITOR_ID, M.NAME AS MONITOR_NAME, T.ACCOUNT_ID, T.NAME, TASK_INTERVAL AS 'INTERVAL', CONFIG_JSON, T.STATUS, T.CREATION_TIME, T.MODIFIED_TIME FROM SNM_TASK T " +
     "LEFT JOIN SNM_MONITOR_TASK MT ON MT.TASK_ID = T.TASK_ID " +
     "LEFT JOIN SNM_MONITOR M ON M.MONITOR_ID = MT.MONITOR_ID " +
     "WHERE T.ACCOUNT_ID = :accountId AND T.STATUS <ne> :taskDeleteStatus GROUP BY T.TASK_ID, MONITOR_ID) AS TMP " +
     "LEFT JOIN ( " +
-     "SELECT  MAX(COLLECTED_TIME), MONITOR_ID, TASK_ID, ERRNO FROM SNM_NIPING_RESULT WHERE COLLECTED_TIME <ge> :lasthour GROUP BY TASK_ID, MONITOR_ID "+
-    ") AS RES ON TMP.MONITOR_ID = RES.MONITOR_ID AND TMP.TASK_ID = RES.TASK_ID " +
+            "SELECT R.ID, R.COLLECTED_TIME, R.MONITOR_ID, R.TASK_ID, R.ERRNO " +
+            "FROM SNM_NIPING_RESULT AS R " +
+            "INNER JOIN  " +
+            "( " +
+            "SELECT MAX(RES2.ID) AS ID " +
+            "FROM SNM_NIPING_RESULT RES2 " +
+            "INNER JOIN ( " +
+            "SELECT MAX(COLLECTED_TIME) AS T1, MONITOR_ID, TASK_ID FROM SNM_NIPING_RESULT WHERE COLLECTED_TIME <ge> :lasthour AND TYPE = :type GROUP BY TASK_ID, MONITOR_ID " +
+            ") AS RES1 " +
+            "ON RES2.COLLECTED_TIME = RES1.T1 AND RES1.MONITOR_ID = RES2.MONITOR_ID AND RES1.TASK_ID = RES2.TASK_ID " +
+            "GROUP BY RES2.COLLECTED_TIME, RES2.TASK_ID, RES2.MONITOR_ID\n" +
+            ") AS RES3 " +
+            "ON R.ID = RES3.ID "+
+    ") AS RESULT ON TMP.MONITOR_ID = RESULT.MONITOR_ID AND TMP.TASK_ID = RESULT.TASK_ID " +
     " ORDER BY TMP.CREATION_TIME DESC")
     @RegisterMapper(TaskMapper.class)
-    List<Task> selectByAccountId(@Bind("accountId") String accountId, @Bind("taskDeleteStatus") int taskDeleteStatus, @Bind("lasthour") Date lasthour, @Define("ne") String notEqual, @Define("ge") String greaterThan);
+    List<Task> selectByAccountId(@Bind("accountId") String accountId, @Bind("taskDeleteStatus") int taskDeleteStatus, @Bind("lasthour") Date lasthour, @Bind("type") int type, @Define("ne") String notEqual, @Define("ge") String greaterThan);
 
     @SqlQuery("SELECT TASK_ID, ACCOUNT_ID, NAME, TASK_INTERVAL AS 'INTERVAL', " +
             " CONFIG_JSON, STATUS, CREATION_TIME, MODIFIED_TIME FROM SNM_TASK " +
