@@ -8,7 +8,6 @@ import (
 func StopTask(taskId string, taskMap map[string] string){
 	if _,ok := taskMap[taskId];ok {
 		delete(taskMap,taskId)
-		fmt.Println(len(cronJob[taskId].schedulers))
 		for _,v := range cronJob[taskId].schedulers {
 			v.Remove(cli.DelayAndBrandwidth)
 			v.Remove(cli.StabilityTask)

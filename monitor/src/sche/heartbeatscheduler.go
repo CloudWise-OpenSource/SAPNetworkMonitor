@@ -56,19 +56,19 @@ func HeartBeat(nipingtInterval int64,serverInfo map[string] string,monitorInfo m
 		if monitorJob.Data.MonitorId != "" {
 			switch monitorJob.Data.ActionType {
 			case 0:
-				log.Print("Start Task0")
+				log.Print("Stop " + monitorJob.Data.TaskId)
 				StopTask(monitorJob.Data.TaskId, taskMap)
 				log.Println("Stop Task:" +  monitorJob.Data.TaskId)
 				break
 			case 1:
-				log.Print("Start Task1")
+				log.Print("Start "+ monitorJob.Data.TaskId)
 				taskMap[monitorJob.Data.TaskId] = ""
 				StartJob(*monitorJob,serverInfo,monitorInfo,taskMap,errno)
 				break
 			case 2:
-				log.Print("Start Task2")
+				log.Print("Restart " + monitorJob.Data.TaskId)
 				StopTask(monitorJob.Data.TaskId, taskMap)
-				log.Println("Stop Task:" +  monitorJob.Data.TaskId)
+				taskMap[monitorJob.Data.TaskId] = ""
 				StartJob(*monitorJob,serverInfo,monitorInfo,taskMap,errno)
 				break
 			}
