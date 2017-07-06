@@ -1,42 +1,43 @@
 package sche
 
 import (
-	"github.com/jasonlvhit/gocron"
 	"SAPNetworkMonitor/monitor/src/cli"
 	"SAPNetworkMonitor/monitor/src/models"
+	"github.com/jasonlvhit/gocron"
 )
 
-var(
-	cronJob = make(map[string] *Cron)
+var (
+	cronJob = make(map[string]*Cron)
 )
 
 type Cron struct {
 	schedulers []*gocron.Scheduler
 }
 
-func StartJob(monitorJob models.MonitorJob,serverInfo map[string] string,taskMap map[string] string) {
+func StartJob(monitorJob models.MonitorJob, serverInfo map[string]string, monitorInfo map[string]string,taskMap map[string]string,errno int) {
 	url := serverInfo["dataServerUrl"] + "/api/databus/monitor/" + monitorJob.Data.MonitorId + "/result"
-	interval := uint64(monitorJob.Data.Interval)
+	intervalSeconds := monitorJob.Data.Interval * 60
+	interval := uint64(intervalSeconds)
 	cronJob[monitorJob.Data.TaskId] = new(Cron)
-	go func(){
+	go func() {
 		s := gocron.NewScheduler()
-		cronJob[monitorJob.Data.TaskId].schedulers = append(cronJob[monitorJob.Data.TaskId].schedulers,s)
-		s.Every(interval).Seconds().Do(cli.DelayAndBrandwidth,url,monitorJob,serverInfo,taskMap)
-		<- s.Start()
+		cronJob[monitorJob.Data.TaskId].schedulers = append(cronJob[monitorJob.Data.TaskId].schedulers, s)
+		s.Every(interval).Seconds().Do(cli.DelayAndBrandwidth, url, monitorJob, serverInfo, monitorInfo,taskMap,intervalSeconds,errno)
+		<-s.Start()
 	}()
 
 	go func() {
 		t := gocron.NewScheduler()
-		cronJob[monitorJob.Data.TaskId].schedulers = append(cronJob[monitorJob.Data.TaskId].schedulers,t)
-		t.Every(interval).Seconds().Do(cli.StabilityTask,url,monitorJob,serverInfo,taskMap)
-		<- t.Start()
+		cronJob[monitorJob.Data.TaskId].schedulers = append(cronJob[monitorJob.Data.TaskId].schedulers, t)
+		t.Every(interval).Seconds().Do(cli.StabilityTask, url, monitorJob, serverInfo, monitorInfo,taskMap,intervalSeconds,errno)
+		<-t.Start()
 	}()
 
 	go func() {
 		u := gocron.NewScheduler()
-		cronJob[monitorJob.Data.TaskId].schedulers = append(cronJob[monitorJob.Data.TaskId].schedulers,u)
-		u.Every(interval).Seconds().Do(cli.TimeoutTask,url,monitorJob,serverInfo,taskMap)
-		<- u.Start()
+		cronJob[monitorJob.Data.TaskId].schedulers = append(cronJob[monitorJob.Data.TaskId].schedulers, u)
+		u.Every(interval).Seconds().Do(cli.TimeoutTask, url, monitorJob, serverInfo, monitorInfo,taskMap,intervalSeconds,errno)
+		<-u.Start()
 	}()
 
 }

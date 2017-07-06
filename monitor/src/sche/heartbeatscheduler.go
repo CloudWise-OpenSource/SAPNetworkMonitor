@@ -16,7 +16,7 @@ var (
 
 func HeartBeat(nipingtInterval int64,serverInfo map[string] string,monitorInfo map[string] string){
 	log.Println("Start Heartbeat")
-	nipingT := cli.GetNipingT(serverInfo,nipingtInterval)
+	nipingT,errno := cli.GetNipingT(serverInfo,nipingtInterval)
 	monitorId := cli.GetMonitorId()
 	url := serverInfo["heartbeatServerUrl"] + "/api/monitors/monitor/" + monitorId + "/heartbeat"
 	heartbeats := models.HeartBeats{
@@ -44,8 +44,9 @@ func HeartBeat(nipingtInterval int64,serverInfo map[string] string,monitorInfo m
 	client := &http.Client{}
 	resp,err1 :=client.Do(req)
 	if err1 != nil {
-		log.Println("Cannot Get the Response")
-		log.Println("The possible problem is the wrong heartbeatServerUrl: " +  serverInfo["heartbeatServerUrl"])
+		log.Println(err1.Error())
+		log.Println("Cannot Get Response")
+		log.Println("The possible problem may be the heartbeatServerUrl: " +  serverInfo["heartbeatServerUrl"] + " or the network environment")
 	}else if resp.StatusCode == 200 {
 		log.Println("Received Response")
 		buf := new(bytes.Buffer)
@@ -62,13 +63,13 @@ func HeartBeat(nipingtInterval int64,serverInfo map[string] string,monitorInfo m
 			case 1:
 				log.Print("Start Task1")
 				taskMap[monitorJob.Data.TaskId] = ""
-				StartJob(*monitorJob,serverInfo,taskMap)
+				StartJob(*monitorJob,serverInfo,monitorInfo,taskMap,errno)
 				break
 			case 2:
 				log.Print("Start Task2")
 				StopTask(monitorJob.Data.TaskId, taskMap)
 				log.Println("Stop Task:" +  monitorJob.Data.TaskId)
-				StartJob(*monitorJob,serverInfo,taskMap)
+				StartJob(*monitorJob,serverInfo,monitorInfo,taskMap,errno)
 				break
 			}
 		}

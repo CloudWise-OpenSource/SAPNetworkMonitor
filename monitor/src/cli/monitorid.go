@@ -7,6 +7,14 @@ import (
 	"log"
 )
 
+var (
+	monitorId string
+)
+
+func init() {
+	monitorId = ""
+}
+
 func PathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
@@ -19,24 +27,29 @@ func PathExists(path string) (bool, error) {
 }
 
 func GetMonitorId() string {
-	uuid := shortuuid.New()
-	path,err := cfg.Home()
-	if err != nil {
-		log.Println("Cannot Get Homepath")
-		return ""
-	}
-	fileName := path + "/.sapmonitorid"
-	existFlag,_ := PathExists(fileName)
-	if existFlag {
-		f, _ := os.Open(fileName)
-		monitorId,_ := ioutil.ReadAll(f)
-		return string(monitorId)
+	if monitorId == "" {
+		uuid := shortuuid.New()
+		path,err := cfg.Home()
+		if err != nil {
+			log.Println("Cannot Get Homepath")
+			return ""
+		}
+		fileName := path + "/.sapmonitorid"
+		existFlag,_ := PathExists(fileName)
+		if existFlag {
+			f, _ := os.Open(fileName)
+			monitorId,_ := ioutil.ReadAll(f)
+			return string(monitorId)
+		}else {
+			dstFile,_ := os.Create(fileName)
+			defer dstFile.Close()
+			s:= uuid.String()
+			dstFile.WriteString(s)
+			return s
+		}
 	}else {
-		dstFile,_ := os.Create(fileName)
-		defer dstFile.Close()
-		s:= uuid.String()
-		dstFile.WriteString(s)
-		return s
+		return monitorId
 	}
+
 }
 
