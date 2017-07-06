@@ -22,21 +22,21 @@ func StartJob(monitorJob models.MonitorJob, serverInfo map[string]string, monito
 	go func() {
 		s := gocron.NewScheduler()
 		cronJob[monitorJob.Data.TaskId].schedulers = append(cronJob[monitorJob.Data.TaskId].schedulers, s)
-		s.Every(interval).Seconds().Do(cli.DelayAndBrandwidth, url, monitorJob, serverInfo, monitorInfo,taskMap,intervalSeconds,errno)
+		s.Every(interval).Seconds().Do(cli.DelayAndBrandwidth, url, monitorJob, serverInfo, monitorInfo,taskMap,errno)
 		<-s.Start()
 	}()
 
 	go func() {
 		t := gocron.NewScheduler()
 		cronJob[monitorJob.Data.TaskId].schedulers = append(cronJob[monitorJob.Data.TaskId].schedulers, t)
-		t.Every(interval).Seconds().Do(cli.StabilityTask, url, monitorJob, serverInfo, monitorInfo,taskMap,intervalSeconds,errno)
+		t.Every(interval).Seconds().Do(cli.StabilityTask, url, monitorJob, serverInfo, monitorInfo,taskMap,errno)
 		<-t.Start()
 	}()
 
 	go func() {
 		u := gocron.NewScheduler()
 		cronJob[monitorJob.Data.TaskId].schedulers = append(cronJob[monitorJob.Data.TaskId].schedulers, u)
-		u.Every(interval).Seconds().Do(cli.TimeoutTask, url, monitorJob, serverInfo, monitorInfo,taskMap,intervalSeconds,errno)
+		u.Every(interval).Seconds().Do(cli.TimeoutTask, url, monitorJob, serverInfo, monitorInfo,taskMap,errno)
 		<-u.Start()
 	}()
 

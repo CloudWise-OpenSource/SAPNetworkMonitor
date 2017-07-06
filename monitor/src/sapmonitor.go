@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"github.com/jasonlvhit/gocron"
 	"SAPNetworkMonitor/monitor/src/sche"
+	"runtime"
 )
 type program struct{}
 
@@ -25,6 +26,7 @@ func (p *program) run() {
 	monitorInfo,serverInfo := cfg.ReadConfig()
 	heartbeatInterval,_ := strconv.ParseUint(serverInfo["heartbeatInterval"],0,64)
 	nipingtInterval,_ := strconv.ParseInt(serverInfo["nipingtInterval"],10,64)
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	gocron.Every(heartbeatInterval).Seconds().Do(sche.HeartBeat,nipingtInterval,serverInfo,monitorInfo)
 	<- gocron.Start()
 

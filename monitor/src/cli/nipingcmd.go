@@ -113,6 +113,7 @@ func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_arg
 	}
 	endTime := time.Now().Unix()
 	array := []string{}
+	unit := ""
 	if runtime.GOOS == "windows" {
 		array = strings.Split(string(bytes[:]),"\r")
 	}else {
@@ -126,6 +127,7 @@ func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_arg
 				switch strings.Fields(array[i])[0] {
 				case "avg":
 					monitorResult.Avg = strings.Fields(array[i])[1]
+					unit = strings.Fields(array[i])[2]
 					break
 				case "max":
 					monitorResult.Max = strings.Fields(array[i])[1]
@@ -139,7 +141,9 @@ func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_arg
 				}
 			}
 		}
-		if runtime.GOARCH == "386" {
+
+
+		if unit == "usecs" {
 			monitorResult.Avg = transform(monitorResult.Avg)
 			monitorResult.Max = transform(monitorResult.Max)
 			monitorResult.Min = transform(monitorResult.Min)
@@ -174,6 +178,7 @@ func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_arg
 				switch strings.Fields(array[i])[0] {
 				case "avg":
 					monitorResult.Avg = strings.Fields(array[i])[1]
+					unit = strings.Fields(array[i])[2]
 					break
 				case "max":
 					monitorResult.Max = strings.Fields(array[i])[1]
@@ -199,7 +204,7 @@ func NipingCMD(typeId int,taskId string, router string, nipingPath string, b_arg
 				}
 			}
 		}
-		if runtime.GOARCH == "386" {
+		if unit == "usecs" {
 			monitorResult.Avg = transform(monitorResult.Avg)
 			monitorResult.Max = transform(monitorResult.Max)
 			monitorResult.Min = transform(monitorResult.Min)

@@ -11,9 +11,6 @@ var (
 	monitorId string
 )
 
-func init() {
-	monitorId = ""
-}
 
 func PathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
@@ -38,8 +35,9 @@ func GetMonitorId() string {
 		existFlag,_ := PathExists(fileName)
 		if existFlag {
 			f, _ := os.Open(fileName)
-			monitorId,_ := ioutil.ReadAll(f)
-			return string(monitorId)
+			readMonitorId,_ := ioutil.ReadAll(f)
+			monitorId = string(readMonitorId)
+			return monitorId
 		}else {
 			dstFile,_ := os.Create(fileName)
 			defer dstFile.Close()
@@ -47,7 +45,7 @@ func GetMonitorId() string {
 			dstFile.WriteString(s)
 			return s
 		}
-	}else {
+	}else{
 		return monitorId
 	}
 
