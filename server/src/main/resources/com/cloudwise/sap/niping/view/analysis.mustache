@@ -30,6 +30,7 @@
         <!--<hr>-->
         <div class="panel-header">
             <form class="form-inline" method="post" action="#">
+                监控任务:
                 <select name="taskList" id="taskList">
                     {{#result}}
                         {{#data}}
@@ -37,7 +38,8 @@
                         {{/data}}
                     {{/result}}
                 </select>
-
+                &nbsp;&nbsp;
+                监控时间范围:
                 <select name="interval" id="interval">
                     <option value=0>最新状态</option>
                     <option value=30>最近30分钟</option>
