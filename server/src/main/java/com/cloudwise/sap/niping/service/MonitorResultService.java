@@ -38,7 +38,7 @@ public class MonitorResultService {
         if (null == startTime || startTime == 0) {
             try {
                 List<MonitorNiPingResult> monitorNiPingResults = monitorNiPingResultDao.selectByTaskId(accountId, taskId,
-                        MonitorNiPingResult.Type.PERFORMANCE.getValue(), ">");
+                        MonitorNiPingResult.Type.PERFORMANCE.getValue());
                 DecimalFormat formatter = new DecimalFormat("#0.000");
                 if (CollectionUtils.isNotEmpty(monitorNiPingResults)) {
                     monitorNiPingResults = monitorNiPingResults.stream().map((item) -> {
@@ -50,8 +50,7 @@ public class MonitorResultService {
                 }
                 return monitorNiPingResults;
             } catch (DBIException e) {
-                log.error("list result by accountId {} taskId {} startDate error: {}", accountId, taskId, startTime, ExceptionUtils
-                        .getMessage(e));
+                log.error("list result by accountId {} taskId {} startTime {} startDate error: {}", accountId, taskId, startTime, ExceptionUtils.getMessage(e));
                 throw new NiPingException(DBError);
             }
         }

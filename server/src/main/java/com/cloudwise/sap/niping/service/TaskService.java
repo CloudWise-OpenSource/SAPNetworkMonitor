@@ -277,7 +277,7 @@ public class TaskService {
         Optional<List<Task>> tasks = Optional.empty();
         try {
             tasks = Optional.ofNullable(taskDao.selectByAccountId(accountId, Task.Status.deleted.getStatus(), new Date(System
-                    .currentTimeMillis() - 60 * 60 * 1000), "<>", ">="));
+                    .currentTimeMillis() - 60 * 60 * 1000), MonitorNiPingResult.Type.PERFORMANCE.getValue(), "<>", ">="));
             if (tasks.isPresent() && log.isDebugEnabled()) {
                 log.debug("select account {} tasks {}", accountId, Arrays.toString(tasks.get().toArray(new Task[]{})));
             }

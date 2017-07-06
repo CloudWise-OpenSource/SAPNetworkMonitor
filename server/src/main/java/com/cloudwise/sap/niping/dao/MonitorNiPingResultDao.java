@@ -28,13 +28,22 @@ public interface MonitorNiPingResultDao {
             ":tr2, :errmsg, :creationTime, :modifiedTime)")
     void saveMonitorNiPingResult(@BindBean MonitorNiPingResult monitorNiPingResult);
 
-    @SqlQuery("SELECT TMP.*, M.MONITOR_ID, M.NAME, M.IP, M.COUNTRY, M.PROVINCE, M.CITY, M.ISP FROM " +
-            "(SELECT TASK_ID, AV2, TR2, ERRNO, MONITOR_ID FROM SNM_NIPING_RESULT R " +
-            "WHERE R.ACCOUNT_ID = :accountId AND R.TASK_ID = :taskId AND TYPE = :type AND NOT EXISTS(SELECT 1 FROM SNM_NIPING_RESULT WHERE TASK_ID = R" +
-            ".TASK_ID AND MONITOR_ID = R.MONITOR_ID AND COLLECTED_TIME <g> R.COLLECTED_TIME AND  ACCOUNT_ID = :accountId AND TASK_ID = :taskId AND TYPE = :type)) AS TMP " +
-            "INNER JOIN SNM_MONITOR M ON M.MONITOR_ID = TMP.MONITOR_ID")
+    @SqlQuery("SELECT R.TASK_ID, R.AV2, R.TR2, R.ERRNO, R.MONITOR_ID, M.MONITOR_ID, M.NAME, M.IP, M.COUNTRY, M.PROVINCE, M.CITY, M.ISP " +
+            "FROM SNM_NIPING_RESULT AS R " +
+            "INNER JOIN " +
+            "( " +
+            "SELECT MAX(RES2.ID) AS ID " +
+            "FROM SNM_NIPING_RESULT RES2 " +
+            "INNER JOIN ( " +
+            "SELECT MAX(COLLECTED_TIME) AS T1, MONITOR_ID, TASK_ID FROM SNM_NIPING_RESULT WHERE ACCOUNT_ID = :accountId AND TASK_ID = :taskId AND TYPE = :type GROUP BY TASK_ID, MONITOR_ID " +
+            ") AS RES1 " +
+            "ON RES2.COLLECTED_TIME = RES1.T1 AND RES1.MONITOR_ID = RES2.MONITOR_ID AND RES1.TASK_ID = RES2.TASK_ID " +
+            "GROUP BY RES2.COLLECTED_TIME, RES2.TASK_ID, RES2.MONITOR_ID " +
+            ") AS RES3 " +
+            "ON R.ID = RES3.ID " +
+            "INNER JOIN SNM_MONITOR M ON M.MONITOR_ID = R.MONITOR_ID")
     @RegisterMapper(MonitorNiPingResultMapper.class)
-    List<MonitorNiPingResult> selectByTaskId(@Bind("accountId") String accountId, @Bind("taskId") String taskId, @Bind("type") int type, @Define("g") String g);
+    List<MonitorNiPingResult> selectByTaskId(@Bind("accountId") String accountId, @Bind("taskId") String taskId, @Bind("type") int type);
 
     @SqlQuery("SELECT TASK_ID, ERRNO, ERRNO, TR2, AV2, M.MONITOR_ID, M.NAME, M.IP, M.COUNTRY, M.PROVINCE, M.CITY, M.ISP FROM SNM_NIPING_RESULT R " +
             "INNER JOIN SNM_MONITOR M ON M.MONITOR_ID = R.MONITOR_ID " +

@@ -30,7 +30,7 @@ public class TaskMapper implements ResultSetMapper<Task> {
         }
 
         try {
-            task.setResultMonitorId(r.getString("RESULT_MONITOR_ID"));
+            task.setResultId(r.getString("RESULT_ID"));
             task.setErrno(r.getInt("ERRNO"));
         }
         catch (Exception e) {
