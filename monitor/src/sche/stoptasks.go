@@ -1,7 +1,6 @@
 package sche
 
 import (
-	"fmt"
 	"SAPNetworkMonitor/monitor/src/cli"
 )
 
