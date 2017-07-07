@@ -208,13 +208,39 @@ $(function(){
                   }
               });
         }
-        //添加任务到后端
+        //预处理添加表单
+        function validateTaskForm(context){
+            var form = $(context);
+            //验证通过标志,默认是通过
+            var validateFlag = true;
 
+            //验证任务名称不能为空
+            if(!trim($(form).find("#name").val()).length){
+                $(form).find("#name").siblings(".tip").html('任务名称不能为空!');
+                validateFlag = false;
+            }else{
+                $(form).find("#name").siblings(".tip").html('');
+            }
+
+            //验证NIPingd地址不能为空
+            if(!trim($(form).find("#routeAddress").val()).length){
+                $(form).find("#routeAddress").siblings(".tip").html('NiPing服务器IP不能为空!');
+                validateFlag = false;
+            }else{
+                $(form).find("#routeAddress").siblings(".tip").html('');
+            }
+
+
+            return validateFlag;
+        }
+        //添加任务到后端
         $(".formPanel").on("click",".saveTask",function(){
               event.preventDefault();
               //提交表单
               var context = $(".formPanel").find("form");
-              saveTask(context);
+              if(validateTaskForm(context)){
+                 saveTask(context);
+              }
         });
 
          //编辑任务

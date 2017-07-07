@@ -1811,3 +1811,8 @@ td.operate a{
 .redirectToAnalysis:hover{
     text-decoration:underline;
 }
+
+form .tip{
+    color:red;
+    font-size:12px;
+}
