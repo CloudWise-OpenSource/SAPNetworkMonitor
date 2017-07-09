@@ -31,10 +31,10 @@ public interface TaskDao {
     void updateTaskStatus(@Bind("accountId") String accountId, @Bind("taskId") String taskId, @Bind("status") int status,  @Bind("deleteStatus") int deleteStatus, @Bind("modifiedTime") Date modifiedTime, @Define("ne") String notEqual) ;
 
     @SqlQuery("SELECT SNM_TASK.TASK_ID, MONITOR_ID, ACCOUNT_ID, NAME, TASK_INTERVAL AS 'INTERVAL', CONFIG_JSON, STATUS, CREATION_TIME, MODIFIED_TIME FROM SNM_TASK INNER JOIN SNM_MONITOR_TASK ON SNM_MONITOR_TASK.TASK_ID = SNM_TASK.TASK_ID " +
-            " WHERE SNM_MONITOR_TASK.MONITOR_ID = :monitorId AND SNM_MONITOR_TASK.TASK_ID NOT IN (<runningTaskIds>) AND STATUS = :taskEnableStatus")
+            " WHERE SNM_MONITOR_TASK.MONITOR_ID = :monitorId AND SNM_MONITOR_TASK.TASK_ID NOT IN (<runningTaskIds>) AND STATUS = :taskEnableStatus AND REDISPATCHER <ne> :redispatcher")
     @MaxRows(1)
     @RegisterMapper(TaskMapper.class)
-    Task getNextStartTask(@Bind("monitorId") String monitorId, @BindIn("runningTaskIds") List<String> runningTaskIds, @Bind("taskEnableStatus") int taskEnableStatus) ;
+    Task getNextStartTask(@Bind("monitorId") String monitorId, @BindIn("runningTaskIds") List<String> runningTaskIds, @Bind("taskEnableStatus") int taskEnableStatus, @Define("ne") String notEqual, @Bind("redispatcher") int redispatcher) ;
 
     @SqlQuery("SELECT SNM_TASK.TASK_ID, MONITOR_ID, ACCOUNT_ID, NAME, TASK_INTERVAL AS 'INTERVAL', CONFIG_JSON, STATUS, CREATION_TIME, MODIFIED_TIME FROM SNM_TASK INNER JOIN SNM_MONITOR_TASK ON SNM_MONITOR_TASK.TASK_ID = SNM_TASK.TASK_ID " +
             " WHERE SNM_MONITOR_TASK.MONITOR_ID = :monitorId AND REDISPATCHER = :needRedispatcher AND STATUS = :taskEnableStatus")

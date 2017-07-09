@@ -86,11 +86,12 @@ public class TaskResource {
                 String taskId = taskService.saveTask(task);
 
                 String selectMonitorIdString = taskVO.getSelectMonitorIdString();
-                ArrayList<String> taskIds = Lists.newArrayList();
+                ArrayList<String> monitorIds = Lists.newArrayList();
                 if (StringUtils.isNotBlank(selectMonitorIdString)) {
-                    taskIds = new ArrayList<String>(Arrays.asList(selectMonitorIdString.split(",")));
+                    monitorIds = new ArrayList<String>(Arrays.asList(selectMonitorIdString.split(",")));
                 }
-                taskService.assignTask(taskIds, taskId);
+                taskService.assignTask(monitorIds, taskId);
+                taskService.modifyTaskRedispatcher(taskId);
             } catch (NiPingException e) {
                 return new RestfulReturnResult(e, null);
             }
