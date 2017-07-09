@@ -73,7 +73,7 @@ public class TaskService {
         }
         Task task = null;
         try {
-            task = taskDao.getNextStartTask(monitorId, runningTaskIds, Task.Status.enable.getStatus());
+            task = taskDao.getNextStartTask(monitorId, runningTaskIds, Task.Status.enable.getStatus(), "<>", MonitorTask.Redispatcher.NeedRedispatcher.getRedispatcher());
         } catch (DBIException e) {
             log.error("get monitor {} next start job error {}", monitorId, ExceptionUtils.getMessage(e));
             throw new NiPingException(DBError);
@@ -188,7 +188,7 @@ public class TaskService {
                 taskDao.updateTask(task);
 
                 //task update needredispatch
-                monitorTaskDao.updateMonitorTaskRedispatcher(task.getTaskId(), MonitorTask.Redispatcher.NeedRedispatcher.getRedispatcher());
+                 monitorTaskDao.updateMonitorTaskRedispatcher(task.getTaskId(), MonitorTask.Redispatcher.NeedRedispatcher.getRedispatcher());
                 log.debug("task {} modified", task);
             }
         } catch (DBIException e) {
@@ -196,6 +196,16 @@ public class TaskService {
             throw new NiPingException(DBError);
         }
         return task.getTaskId();
+    }
+
+    public void modifyTaskRedispatcher(String taskId)  throws NiPingException {
+        try {
+            monitorTaskDao.updateMonitorTaskRedispatcher(taskId, MonitorTask.Redispatcher.NeedRedispatcher.getRedispatcher());
+            log.debug("update task {} redispatcher", taskId);
+        } catch (DBIException e) {
+            log.error("update task {} redispatcher error: {}", taskId, ExceptionUtils.getMessage(e));
+            throw new NiPingException(DBError);
+        }
     }
 
     public void enableTask(String accountId, String taskId) throws NiPingException {
