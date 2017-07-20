@@ -40,7 +40,7 @@
     </fileSets>
     <files>
         <file>
-            <source>target/sap-network-monitor-server-1.0.1.jar</source>
+            <source>target/sap-network-monitor-server-1.0.2.jar</source>
             <outputDirectory>./lib</outputDirectory>
         </file>
     </files>

@@ -30,13 +30,13 @@ JVM_OPTS="
 action=$1
 if [ x$action == x ] ;then  
     start() {
-	nohup java $JVM_OPTS -jar lib/sap-network-monitor-server-1.0.1.jar server conf/server.yml &
+	nohup java $JVM_OPTS -jar lib/sap-network-monitor-server-1.0.2.jar server conf/server.yml &
 	echo -e '\r'
     }	
     start|tee logs/console.log |tee logs/console.log
 elif [ $action == "migrate" ] ;then
     migrate() {
-	nohup java $JVM_OPTS -jar lib/sap-network-monitor-server-1.0.1.jar db migrate conf/server.yml --migrations conf/migrations.xml  &
+	nohup java $JVM_OPTS -jar lib/sap-network-monitor-server-1.0.2.jar db migrate conf/server.yml --migrations conf/migrations.xml  &
 	echo -e '\r'
     }	
     migrate|tee logs/console.log |tee logs/console.log
