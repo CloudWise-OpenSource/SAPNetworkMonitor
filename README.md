@@ -258,4 +258,3 @@ Uninstall the service       sapmonitor.exe uninstall
 4. 任务创建成功后，过几分钟，Monitor会接收到任务指令，按设定的频率开始对路由进行监测，并持续将结果返回给Server.
 5. Server端可以通过数据分析和历史记录来查看任务和Monitor执行的结果。
 6. 如果某个Monitor在某次执行失败，会在监测历史中显示为不可用，这时管理人员可以在Server上查看其niping 执行出错后的errmsg（点击监测历史中不可用旁边的小按钮）.
-7. 编辑config.ini文件时，使用文本编辑器utf-8无bom格式保存
