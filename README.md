@@ -236,7 +236,7 @@ The monitor will make a file which contains the agent's monitorid as the program
 
 ## 1.How to Run it   
 
-main.exe
+sapmonitor.exe
 
 ## 2.How to Set it as Service   
 
