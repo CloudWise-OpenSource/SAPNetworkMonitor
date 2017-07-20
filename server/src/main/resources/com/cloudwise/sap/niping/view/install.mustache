@@ -64,8 +64,11 @@
                         <div class="widget-content">
                                 1. 按照本地操作系统类型点击上面的按钮下载sap-network-monitor.zip<br><br>
                                 2. 解压sap-network-monitor.zip得到monitor的执行文件(sapmonitor/sapmonitor.exe)和配置文件(config.ini)<br><br>
-                                3. 从launchpad.support.sap.com下载对应系统的niping，放入监测机器，并记下其所在路径<br><br>
-                                4. 修改配置文件config.ini<br>
+                                3. 下载对应系统的niping，放入监测机器，并记下其所在路径<br>
+                                    从哪里获得niping工具?<br>
+                                    1） SAP服务器内核可执行文件目录中包含服务器操作系统对应的niping程序。<br>
+                                    2） niping单独包含在SAPRouter安装包中，具体可参考<a name="saprouter.html" href="https://support.sap.com/en/tools/connectivity-tools/saprouter.html"><U>SAPROUTER</U></a>下载解压。（需S-User账号授权）<br><br>
+                                4. 使用VI(Linux)或者UltraEdit(Windows)等文本编辑器修改配置文件config.ini, 并且以UTF-8无BOM格式保存。<br>
                                    修改[monitorInfo]的配置，如<br>
                                    ip = 10.0.1.112<br>
                                    name = XXX公司三河财务部<br>

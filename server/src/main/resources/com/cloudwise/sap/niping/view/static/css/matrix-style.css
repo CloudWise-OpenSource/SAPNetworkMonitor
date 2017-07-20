@@ -1816,3 +1816,32 @@ form .tip{
     color:red;
     font-size:12px;
 }
+
+span.multiselect-native-select{
+    display:block;
+}
+span.monitorSelectInfo{
+    display:block;
+    font-size:12px;
+    width:90%;
+    height:auto;
+    line-height:16px;
+    padding-top:6px;
+    text-align:left;
+}
+
+.editForm .form-actions{
+    border-bottom:1px solid #e5e5e5;
+}
+.usageHelp{
+    width:80%;
+    margin:0px auto;
+}
+.usageHelp h5{
+    font-size:14px;
+    font-weight:bold;
+}
+.usageHelp div ul, .usageHelp div ul li{
+    list-style:none;
+    padding:5px;
+}
