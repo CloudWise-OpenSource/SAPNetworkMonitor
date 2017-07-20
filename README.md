@@ -94,7 +94,7 @@ cd /sap-network-monitor-server-1.0.0/bin
 
 ##### 步骤 5 
 
-可以打开浏览器访问http://localhost:8080访问SAP network monitor server.
+可以打开浏览器(推荐使用Google浏览器)访问http://localhost:8080访问SAP network monitor server.
 
 默认用户名：admin 密码sap118
 
@@ -221,35 +221,6 @@ uninstallService.bat
 登录成功后安装 http://localhost:8080/api/install 的步骤安装SAP network monitor.
 
 
-
-# SAPNetworkMonitor Monitor
-
-Based on niping for sap network monitoring
-
-This monitor is used to monitor network performance in each SAP-Agent by sending heartbeat to get monitoring task from SAP-Server and it supports Windows and Linux.
-
-For convenience, users can set this monitor as Windows and Linux service.
-
-There are compiled Apps in the project.Users should modify the config.ini according to the actual case and the config.ini should be put in the same directory as the App.
-
-The monitor will make a file which contains the agent's monitorid as the program running, the path of this file is the operating system's home path,for example C:\Users\xxx.
-
-## 1.How to Run it   
-
-sapmonitor.exe
-
-## 2.How to Set it as Service   
-
-install the  service        sapmonitor.exe install   
-
-Start the service           sapmonitor.exe start   
-
-Stop the service            sapmonitor.exe stop   
-
-Uninstall the service       sapmonitor.exe uninstall
-
-
-
 ## 使用说明
 
 1. Monitor安装并启动后，过几分钟，应该可以在Server的监测点菜单中看到，如果没有，可以通过查看Monitor安装目录中的log日志来定位问题。
@@ -258,4 +229,3 @@ Uninstall the service       sapmonitor.exe uninstall
 4. 任务创建成功后，过几分钟，Monitor会接收到任务指令，按设定的频率开始对路由进行监测，并持续将结果返回给Server.
 5. Server端可以通过数据分析和历史记录来查看任务和Monitor执行的结果。
 6. 如果某个Monitor在某次执行失败，会在监测历史中显示为不可用，这时管理人员可以在Server上查看其niping 执行出错后的errmsg（点击监测历史中不可用旁边的小按钮）.
-7. 编辑config.ini文件时，使用文本编辑器utf-8无bom格式保存
