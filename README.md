@@ -75,8 +75,6 @@
 
    修改MySQL连接配置文件 *sap-network-monitor-server-1.0.0/conf/server.yml*
 
-      这里主要修改user及password
-
    ![linux_install_step3](image/linux_install_step3.png)
 
    ##### 步骤 4
@@ -94,15 +92,11 @@
    ./start.sh
    ```
 
-可以打开浏览器(推荐使用Chrome浏览器，IE可能有兼容问题)访问http://localhost:8080访问SAP network monitor server.
-
    ##### 步骤 5
 
-   可以打开浏览器(推荐使用Google浏览器)访问http://localhost:8080访问SAP network monitor server.
+   可以打开浏览器(推荐使用Chrome浏览器，IE可能有兼容问题)访问http://localhost:8080访问SAP network monitor server.
 
    默认用户名：admin 密码sap118
-
-   ​            此处再次强调浏览器选择尽量选用Google浏览器
 
    ![linux_install_step5](image/linux_install_step5.png)
 
@@ -159,37 +153,22 @@
    unzip sap-network-monitor-server-win.zip
    ```
 
-  执行命令请在windows cmd中执行：
+   ##### 步骤 4
+   
+   执行命令请在windows cmd中执行：
   ```Sh
    cd sap-network-monitor-server-win\bat
    ```
-
-   ##### 步骤 4
-
 
   修改MySQL连接配置文件 *sap-network-monitor-server-win/conf/server.yml*  
 
   初始化 MySQL 数据库表以及数据：
   
   ```Sh
-   cd sap-network-monitor-server-win\bat
-   ```
-
-  数据库初始化完成之后，你可以在console直接启动server或者将server安装成服务再启动。
-
-   ##### 步骤 5
-
-   通过windows的cmd找到bat执行目录(这里是绝对路径)
-
-   ```
-   cd c:\Users\zona\DeskTop\sap-network-monitor-server-win\bat
-   ```
-
-   初始化 MySQL 数据库表以及数据
-
-   ```Sh
    startSAP.bat migrate
    ```
+
+   ##### 步骤 5
 
    数据库初始化完成之后，你可以在console直接启动server或者将server安装成服务再启动
 
