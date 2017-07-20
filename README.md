@@ -94,7 +94,7 @@
 
    ##### 步骤 5
 
-   可以打开浏览器(推荐使用Chrome浏览器，IE可能有兼容问题)访问http://localhost:8080访问SAP network monitor server.
+   可以打开浏览器(推荐使用Chrome浏览器，IE可能有兼容问题)访问 http://localhost:8080 访问SAP network monitor server.
 
    默认用户名：admin 密码sap118
 
