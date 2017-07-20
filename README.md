@@ -1,6 +1,8 @@
-1. # SAPNetworkMonitor
+# SAPNetworkMonitor 
 
-   > 欢迎大家加入官方QQ群（651878914）或者在 [Issues页面](https://github.com/CloudWise-OpenSource/SAPNetworkMonitor/issues)及时反馈问题，帮助我们改进SAP Network Monitor。
+> 欢迎大家加入官方QQ群（651878914）或者在 [Issues页面](https://github.com/CloudWise-OpenSource/SAPNetworkMonitor/issues)及时反馈问题，帮助我们改进SAP Network Monitor。
+
+> [Credits](https://github.com/CloudWise-OpenSource/SAPNetworkMonitor/blob/master/CREDITS.md)
 
    ## 架构
 
@@ -12,7 +14,7 @@
 
    ![sap-network-monitor](image/sap-network-monitor.jpg)
 
-   # SAPNetworkMonitor Server
+# SAPNetworkMonitor Server
 
    ## 编译
 
@@ -92,6 +94,8 @@
    ./start.sh
    ```
 
+可以打开浏览器(推荐使用Chrome浏览器，IE可能有兼容问题)访问http://localhost:8080访问SAP network monitor server.
+
    ##### 步骤 5
 
    可以打开浏览器(推荐使用Google浏览器)访问http://localhost:8080访问SAP network monitor server.
@@ -150,19 +154,30 @@
 
    ![win_install_step3](image/win_install_step3.png)
 
+
    ```Sh
    unzip sap-network-monitor-server-win.zip
    ```
 
-   ##### 步骤 3
-
-   修改MySQL连接配置文件 *sap-network-monitor-server-win/conf/server.yml*  
-
-      这里主要修改user及password
-
-   ![linux_install_step3](image/linux_install_step3.png)
+  执行命令请在windows cmd中执行：
+  ```Sh
+   cd sap-network-monitor-server-win\bat
+   ```
 
    ##### 步骤 4
+
+
+  修改MySQL连接配置文件 *sap-network-monitor-server-win/conf/server.yml*  
+
+  初始化 MySQL 数据库表以及数据：
+  
+  ```Sh
+   cd sap-network-monitor-server-win\bat
+   ```
+
+  数据库初始化完成之后，你可以在console直接启动server或者将server安装成服务再启动。
+
+   ##### 步骤 5
 
    通过windows的cmd找到bat执行目录(这里是绝对路径)
 
@@ -214,21 +229,20 @@
    uninstallService.bat
    ```
 
-   ##### 步骤 5
+   ##### 步骤 6
 
    可以打开浏览器(推荐使用Google浏览器)访问http://localhost:8080访问SAP network monitor server.
 
    默认用户名：admin 密码sap118
 
-   ​       此处再次强调浏览器选择尽量选用Google浏览器
-
    ![linux_install_step5](image/linux_install_step5.png)
 
-   ##### 步骤 6
+   ##### 步骤 7
 
-   登录成功后在 “监测点安装” 按照 “配置监测点”的步骤安装SAP network monitor.
+   登录成功后在 “监测点安装” 按照 “配置监测点” 的步骤安装SAP network monitor.
 
    ![linux_install_step6](image/linux_install_step6.png)
+   
 
    ## 使用说明
 
@@ -243,13 +257,11 @@
    3. 管理人员可以在Server上创建一个任务，指定SAP路由，并选中由哪几个Monitor来执行niping -c 的监测。
 
       ![monitor_step3](image/monitor_step3.png)
-
+   
    4. 任务创建成功后，过几分钟，Monitor会接收到任务指令，按设定的频率开始对路由进行监测，并持续将结果返回给Server.
-
+   
    5. Server端可以通过数据分析和历史记录来查看任务和Monitor执行的结果。
-
       ![monitor_step4](image/monitor_step4.png)
-
+  
    6. 如果某个Monitor在某次执行失败，会在监测历史中显示为不可用，这时管理人员可以在Server上查看其niping 执行出错后的errmsg（点击监测历史中不可用旁边的小按钮）.
-
-   ![monitor_step5](image/monitor_step5.png)
+      ![monitor_step5](image/monitor_step5.png)

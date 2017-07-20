@@ -3,14 +3,14 @@
         <label class="control-label">任务名称</label>
         <div class="controls">
             <input type="text" name="name" id="name">
-            <span class="tip"></span>
+            <span class="tip">*</span>
         </div>
     </div>
     <div class="control-group">
         <label class="control-label">NiPing服务器IP</label>
         <div class="controls">
             <input type="text" name="jobDesc.router" id="routeAddress" placeholder="例如:H202.101.110.119/H192.168.1.1">
-            <span class="tip"></span>
+            <span class="tip">*</span>
         </div>
     </div>
     <div class="control-group">
@@ -39,9 +39,38 @@
                     {{/data}}
                 {{/result}}
             </select>
+            <span class="monitorSelectInfo">
+                任务一旦创建并开启后，在任务中指定的Monitor(监测点)会接收到任务，并按照该频率定时的去做niping -c的监测（时延、带宽、稳定性、超时 会有不同的策略），并将结果返回给当前服务器。
+            </span>
         </div>
     </div>
     <div class="form-actions">
         <input type="submit" value="保存" class="btn btn-info saveTask">
+    </div>
+
+    <div class="usageHelp">
+        <h5>使用说明</h5>
+        <div>
+            <ul>
+                <li>
+                    1. Monitor安装并启动后，过几分钟，应该可以在Server的监测点菜单中看到，如果没有，可以通过查看Monitor安装目录中的log日志来定位问题。
+                </li>
+                <li>
+                    2. 如果Server的监测点菜单中可以看到安装的Monitor,说明Monitor与Server的通讯正常，此时，管理人员可以在Server上查看当前Monitor上执行niping -t的结果（点击“监测点”菜单中监测点最右侧的查看按钮）。
+                </li>
+                <li>
+                    3. 管理人员可以在Server上创建一个任务，指定SAP路由，并选中由哪几个Monitor来执行niping -c 的监测。
+                </li>
+                <li>
+                    4. 任务创建成功后，过几分钟，Monitor会接收到任务指令，按设定的频率开始对路由进行监测，并持续将结果返回给Server。
+                </li>
+                <li>
+                    5. Server端可以通过数据分析和历史记录来查看任务和Monitor执行的结果。
+                </li>
+                <li>
+                    6. 如果某个Monitor在某次执行失败，会在监测历史中显示为不可用，这时管理人员可以在Server上查看其niping 执行出错后的errmsg（点击监测历史中不可用旁边的小按钮）。
+                </li>
+            </ul>
+        </div>
     </div>
 </form>
