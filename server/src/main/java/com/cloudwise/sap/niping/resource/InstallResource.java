@@ -73,7 +73,21 @@ public class InstallResource {
         }
 
         String zipDirName = MD5Util.computeMD5(token + "_" + request.getServerName() + "_" + request.getServerPort() + "_" + type);
-        String zipName = "sap-network-monitor.zip";
+//        String zipName = "sap-network-monitor.zip";
+                 String zipName = null;
+		if (type.equals("linux32")) {
+			zipName = "sap-network-monitor-linux32.zip";
+			log.info("use name " + type);
+		} else if (type.equals("linux64")) {
+			zipName = "sap-network-monitor-linux64.zip";
+			log.info("use name" + type);
+		} else if (type.equals("win32")) {
+			zipName = "sap-network-monitor-win32.zip";
+			log.info("use name" + type);
+		} else if (type.equals("win64")) {
+			zipName = "sap-network-monitor-win64.zip";
+			log.info("use name " + type);
+		}
         File zip = new File(downloadDirName + File.separatorChar + zipDirName + File.separatorChar + zipName);
         File zipDir = new File(downloadDirName + File.separatorChar + zipDirName);
         SystemType systemType = null;
