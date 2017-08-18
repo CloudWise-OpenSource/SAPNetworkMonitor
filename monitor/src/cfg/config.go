@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 	"github.com/axgle/mahonia"
-	"fmt"
 )
 
 var (
