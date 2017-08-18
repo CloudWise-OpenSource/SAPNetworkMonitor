@@ -6,6 +6,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"github.com/saintfish/chardet"
+	"github.com/axgle/mahonia"
+	"fmt"
 )
 
 var (
@@ -42,10 +45,24 @@ func GetCurrentDirectory() string {
 	return strings.Replace(dir, "\\", "/", -1)
 }
 
+func ExampleTextDetector(option string) string {
+	data := []byte(option)
+	detector := chardet.NewTextDetector()
+	result, err := detector.DetectBest(data)
+	if err == nil {
+		return result.Charset
+	}
+	return result.Charset
+
+	// Output:
+	// Detected charset is GB-18030, language is zh
+}
+
 func ReadConfig()(map1 map[string] string,map2 map[string] string) {
 	path := GetCurrentDirectory()
 	configFile := path + "/config.ini"
 	cfg, err := config.ReadDefault(configFile)
+	data := ""
 	if err != nil {
 		log.Fatalf("Fail to find", configFile, err)
 	}
@@ -55,7 +72,10 @@ func ReadConfig()(map1 map[string] string,map2 map[string] string) {
 			for _, v := range section {
 				options, err := cfg.String("monitorInfo", v)
 				if err == nil {
-					monitorInfo[v] = options
+					decoder := mahonia.NewDecoder("gb18030")
+					data = decoder.ConvertString(options)
+					fmt.Println(data)
+					monitorInfo[v] = data
 				}
 			}
 		}
